@@ -21,10 +21,8 @@ export default function App() {
   const generateGaussianPath = (mu, sigma, heightScale = 1, width = 400, height = 200) => {
     let path = `M 0 ${height} `;
     for (let x = 0; x <= width; x += 2) {
-      // Map x to a -4 to 4 range
       const scaledX = ((x / width) * 8) - 4;
       const y = (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((scaledX - mu) / sigma, 2));
-      // Scale y for visualization
       const visualY = height - (y * heightScale);
       path += `L ${x} ${visualY} `;
     }
@@ -37,7 +35,6 @@ export default function App() {
     let path = `M 0 ${height} `;
     for (let x = 0; x <= width; x += 2) {
       const scaledX = ((x / width) * 8) - 4;
-      // Combine three different curves to make it messy
       const y1 = (1 / (0.8 * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((scaledX + 2) / 0.8, 2));
       const y2 = (1 / (0.4 * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((scaledX - 1) / 0.4, 2));
       const y3 = (1 / (1.2 * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((scaledX - 3) / 1.2, 2));
@@ -1872,6 +1869,164 @@ export default function App() {
              <div className="mt-8 bg-emerald-50 border border-emerald-200 p-4 rounded-lg text-sm text-emerald-900 text-center shadow-inner">
                Because Y₁ is instantly available, we can run the Neural Network to get the exact same s and t parameters <strong>in one single pass</strong>. There are no sequential loops! This makes Affine Coupling perfectly suited for fast, real-time Model Predictive Control simulations.
              </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "31. The Grand Unification",
+      subtitle: "Do we use Log-Likelihood and Backprop? Yes!",
+      content: (
+        <div className="space-y-4 animate-fade-in">
+          <p className="text-gray-700">
+            You have connected the dots perfectly! You just realized the greatest secret of Normalizing Flows: no matter how crazy the names get (MADE, MAF, IAF, RealNVP, Glow), <strong>the underlying engine is exactly the same</strong>.
+          </p>
+          <div className="bg-slate-900 p-6 rounded-xl border border-slate-700 shadow-xl mt-4">
+            <h4 className="text-white font-bold mb-4 flex items-center gap-2"><CheckCircle2 className="text-green-400"/> 1. The Training Loop is Identical</h4>
+            <p className="text-sm text-slate-300 mb-4">
+              The data flows through all the Coupling Layers, doing the splits and math, until it pops out at the very end as <code className="bg-slate-800 text-indigo-400 px-1 rounded">Z_final</code>. We call the exact same "Inspector":
+            </p>
+            <div className="bg-slate-800 p-4 rounded-lg text-center border border-slate-600 mb-4">
+              <code className="text-rose-400 font-bold text-lg">Loss = -1 * (Blueprint Score + Volume Penalty)</code>
+            </div>
+            <p className="text-sm text-slate-300">
+              We call <code className="bg-slate-800 px-1 rounded text-teal-400">loss.backward()</code>, and the error flows backward through the entire model, updating the weights inside <em>every single neural network</em> in those coupling layers simultaneously.
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "32. Vocabulary Shift: s & t vs μ & α",
+      subtitle: "Are they the exact same thing? Yes!",
+      content: (
+        <div className="space-y-4 animate-fade-in">
+          <p className="text-gray-700">
+            They are the exact same concepts wearing a different trench coat! Different textbook authors just like to use different letters.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center">
+              <h4 className="font-bold text-indigo-800 mb-2 border-b border-indigo-100 pb-2 w-full text-center">Translation (t) = Mean (μ)</h4>
+              <div className="bg-indigo-50 w-full p-4 rounded-lg flex justify-center items-center gap-4 border border-indigo-200">
+                <span className="text-2xl font-bold text-indigo-600">t</span>
+                <ArrowRightLeft className="text-indigo-400"/>
+                <span className="text-2xl font-bold text-indigo-600">μ</span>
+              </div>
+              <p className="text-xs text-gray-600 mt-3 text-center">It shifts the data left or right. It controls the center of the distribution.</p>
+            </div>
+            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center">
+              <h4 className="font-bold text-teal-800 mb-2 border-b border-teal-100 pb-2 w-full text-center">Scale (s) = Log-Std (α)</h4>
+              <div className="bg-teal-50 w-full p-4 rounded-lg flex justify-center items-center gap-4 border border-teal-200">
+                <span className="text-2xl font-bold text-teal-600">s</span>
+                <ArrowRightLeft className="text-teal-400"/>
+                <span className="text-2xl font-bold text-teal-600">α</span>
+              </div>
+              <p className="text-xs text-gray-600 mt-3 text-center">It stretches or squishes the data. It controls the width of the distribution.</p>
+            </div>
+          </div>
+          <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-center shadow-sm mt-4">
+            <span className="text-sm font-bold text-slate-700">The Affine Math Equation:</span>
+            <div className="mt-2 text-lg font-mono text-slate-800">
+              Y₂ = (X₂ ⊙ exp(<span className="text-teal-600">s</span>)) + <span className="text-indigo-600">t</span>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">It's just a Shift and a Scale, identical to the Gaussian formula we used earlier!</p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "33. The Brain vs. The Muscle (Coupling)",
+      subtitle: "The neural network finishes completely before the math starts.",
+      content: (
+        <div className="space-y-4 animate-fade-in">
+          <p className="text-gray-700">
+            <strong>No, we do not warp X₂ inside the hidden layers!</strong> The entire Neural Network acts as a single, isolated "Brain." X₁ goes all the way through every hidden layer first to produce the final s and t.
+          </p>
+          
+          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center mt-4 relative">
+            
+            <div className="flex w-full items-stretch justify-between gap-4">
+                {/* The Brain */}
+                <div className="flex-1 bg-slate-900 p-4 pt-6 rounded-xl border border-slate-700 shadow-lg relative flex flex-col items-center">
+                    <span className="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest mb-3 absolute top-0 -translate-y-1/2 border border-slate-600">1. The Brain (Neural Network)</span>
+                    <div className="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded mb-2">Input: X₁</div>
+                    <ArrowDown size={14} className="text-slate-500 mb-1"/>
+                    <div className="flex gap-2">
+                       <div className="bg-slate-800 border border-slate-600 w-8 h-8 rounded-full flex items-center justify-center text-[10px] text-slate-400">L1</div>
+                       <div className="bg-slate-800 border border-slate-600 w-8 h-8 rounded-full flex items-center justify-center text-[10px] text-slate-400">L2</div>
+                       <div className="bg-slate-800 border border-slate-600 w-8 h-8 rounded-full flex items-center justify-center text-[10px] text-slate-400">L3</div>
+                    </div>
+                    <ArrowDown size={14} className="text-slate-500 mt-1 mb-2"/>
+                    <div className="flex gap-2 w-full justify-center">
+                        <div className="bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded shadow">Output: t</div>
+                        <div className="bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded shadow">Output: s</div>
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-center">
+                   <ArrowRight size={24} className="text-gray-400"/>
+                </div>
+
+                {/* The Muscle */}
+                <div className="flex-1 bg-rose-50 p-4 pt-6 rounded-xl border border-rose-200 shadow-sm relative flex flex-col items-center justify-center">
+                    <span className="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest mb-3 absolute top-0 -translate-y-1/2 border border-rose-300">2. The Muscle (Math)</span>
+                    <div className="flex items-center gap-2 mb-3">
+                       <div className="bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded shadow-sm">Input: X₂</div>
+                       <span className="text-rose-400 font-bold">+</span>
+                       <div className="flex gap-1">
+                          <span className="bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm">t</span>
+                          <span className="bg-teal-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm">s</span>
+                       </div>
+                    </div>
+                    <ArrowDown size={14} className="text-rose-400 mb-2"/>
+                    <code className="bg-white border border-rose-300 text-rose-800 font-bold px-4 py-2 rounded-lg shadow-sm">
+                       Y₂ = (X₂ ⊙ exp(s)) + t
+                    </code>
+                </div>
+            </div>
+
+          </div>
+
+          <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded text-sm text-indigo-900 shadow-sm mt-4">
+            Only <strong>after</strong> the Neural Network completely finishes calculating does it pass the final <code>s</code> and <code>t</code> vectors to the Affine Math block, which executes exactly <strong>once</strong> for that Flow Layer.
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "34. Why Coupling is Easier to Code",
+      subtitle: "Goodbye, complicated binary masks!",
+      content: (
+        <div className="space-y-4 animate-fade-in">
+          <p className="text-gray-700">
+            In MAF, you had to write a complicated "Binary Mask" to cut the wires inside the Neural Network so it wouldn't cheat. In Affine Coupling, <strong>you don't need a mask at all!</strong>
+          </p>
+
+          <div className="flex flex-col md:flex-row gap-6 mt-4">
+            <div className="flex-1 bg-white p-5 rounded-xl border border-gray-200 shadow-sm opacity-60 grayscale">
+              <h4 className="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-3 text-center">MAF (The Hard Way)</h4>
+              <div className="flex justify-center mb-3">
+                <Network size={32} className="text-slate-400"/>
+              </div>
+              <p className="text-xs text-slate-600 text-center">Requires calculating exact "degrees" for every hidden neuron and multiplying weight matrices by 0 to prevent looking into the future.</p>
+            </div>
+
+            <div className="flex-1 bg-white p-5 rounded-xl border border-emerald-300 shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">THE EASY WAY</div>
+              <h4 className="font-bold text-emerald-800 border-b border-emerald-100 pb-2 mb-3 text-center">Coupling (Physical Split)</h4>
+              <div className="flex justify-center gap-4 mb-3">
+                <div className="bg-blue-100 border border-blue-300 px-3 py-1 rounded text-xs font-mono font-bold text-blue-800">x[:50]</div>
+                <div className="bg-rose-100 border border-rose-300 px-3 py-1 rounded text-xs font-mono font-bold text-rose-800">x[50:]</div>
+              </div>
+              <p className="text-xs text-emerald-700 text-center leading-relaxed">
+                Because you physically split the data array in half, and the Neural Network <em>only</em> takes Half A as input, it is physically impossible for the network to cheat and look at Half B.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 bg-slate-900 text-white p-4 rounded-xl text-center shadow-xl border border-slate-700">
+            <span className="block text-lg font-bold mb-1 flex justify-center items-center gap-2"><CheckCircle2 className="text-green-400"/> You have fully mastered the architecture!</span>
+            <span className="text-sm text-slate-300">You can use literally any standard, off-the-shelf neural network (MLP, ResNet, etc.) as your "Brain" to calculate s and t. You are completely ready to write the code for this!</span>
           </div>
         </div>
       )
