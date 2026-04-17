@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, ArrowLeft, Info, Play, RotateCcw, ArrowRightLeft, Cpu, AlertCircle, CheckCircle2, Maximize2, Minimize2, Grid, Box, XCircle, Zap, Hourglass, X, Network } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Info, Play, RotateCcw, ArrowRightLeft, Cpu, AlertCircle, CheckCircle2, Maximize2, Minimize2, Grid, Box, XCircle, Zap, Hourglass, X, Network, ArrowDown } from 'lucide-react';
 
 export default function App() {
   const [step, setStep] = useState(0);
@@ -21,8 +21,10 @@ export default function App() {
   const generateGaussianPath = (mu, sigma, heightScale = 1, width = 400, height = 200) => {
     let path = `M 0 ${height} `;
     for (let x = 0; x <= width; x += 2) {
+      // Map x to a -4 to 4 range
       const scaledX = ((x / width) * 8) - 4;
       const y = (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((scaledX - mu) / sigma, 2));
+      // Scale y for visualization
       const visualY = height - (y * heightScale);
       path += `L ${x} ${visualY} `;
     }
@@ -35,6 +37,7 @@ export default function App() {
     let path = `M 0 ${height} `;
     for (let x = 0; x <= width; x += 2) {
       const scaledX = ((x / width) * 8) - 4;
+      // Combine three different curves to make it messy
       const y1 = (1 / (0.8 * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((scaledX + 2) / 0.8, 2));
       const y2 = (1 / (0.4 * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((scaledX - 1) / 0.4, 2));
       const y3 = (1 / (1.2 * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((scaledX - 3) / 1.2, 2));
@@ -1601,6 +1604,274 @@ export default function App() {
                </svg>
             </div>
 
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "27. The Autoregressive Bottleneck",
+      subtitle: "Why MAF struggles with real-time Control and Simulation.",
+      content: (
+        <div className="space-y-4 animate-fade-in">
+          <p className="text-gray-700">
+            For problems like Model Predictive Control (MPC) of energy pipelines, we must simulate <em>thousands</em> of future states in milliseconds. Autoregressive flows (like MAF) fail here because of the <strong>Sampling Bottleneck</strong>.
+          </p>
+
+          <div className="flex flex-col md:flex-row gap-6 mt-4">
+             {/* Fast Forward (Training) */}
+             <div className="flex-1 bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center">
+                <h4 className="font-bold text-teal-700 mb-3 border-b border-teal-100 pb-2 w-full text-center">Forward Pass (Training)</h4>
+                <div className="bg-teal-50 w-full rounded-lg p-4 flex flex-col gap-2 items-center border border-teal-200">
+                   <div className="flex gap-1 w-full justify-center">
+                     {[1,2,3,4,5].map(i => (
+                        <div key={i} className="w-6 h-6 bg-teal-400 rounded-sm"></div>
+                     ))}
+                   </div>
+                   <ArrowDown size={16} className="text-teal-400" />
+                   <div className="w-full bg-slate-800 text-white text-xs text-center py-2 rounded shadow-inner">Masked Neural Network</div>
+                   <ArrowDown size={16} className="text-teal-400" />
+                   <div className="flex gap-1 w-full justify-center">
+                     {[1,2,3,4,5].map(i => (
+                        <div key={i} className="w-6 h-6 bg-indigo-400 rounded-full"></div>
+                     ))}
+                   </div>
+                </div>
+                <div className="mt-4 text-center">
+                   <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-xs font-bold">Fast & Parallel</span>
+                   <p className="text-[11px] text-gray-500 mt-2">All data points process simultaneously in one GPU operation.</p>
+                </div>
+             </div>
+
+             {/* Slow Inverse (Sampling) */}
+             <div className="flex-1 bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center">
+                <h4 className="font-bold text-rose-700 mb-3 border-b border-rose-100 pb-2 w-full text-center">Inverse Pass (Sampling)</h4>
+                
+                <div className="bg-rose-50 w-full rounded-lg p-4 flex flex-col gap-2 items-center border border-rose-200">
+                   <style dangerouslySetInnerHTML={{__html: `
+                     @keyframes loop-appear { 
+                       0%, 100% { opacity: 0; }
+                       20%, 80% { opacity: 1; }
+                     }
+                   `}} />
+                   
+                   <div className="flex gap-1 w-full justify-center">
+                     <div className="w-6 h-6 bg-indigo-400 rounded-full"></div>
+                     <div className="w-6 h-6 bg-gray-300 rounded-full opacity-30"></div>
+                     <div className="w-6 h-6 bg-gray-300 rounded-full opacity-30"></div>
+                     <div className="w-6 h-6 bg-gray-300 rounded-full opacity-30"></div>
+                     <div className="w-6 h-6 bg-gray-300 rounded-full opacity-30"></div>
+                   </div>
+                   <div className="flex justify-center w-full relative">
+                      <ArrowDown size={16} className="text-rose-400" />
+                      <RotateCcw size={14} className="absolute right-[30%] text-rose-500 animate-[spin_2s_linear_infinite]" />
+                   </div>
+                   <div className="w-full bg-slate-800 text-white text-xs text-center py-2 rounded shadow-inner">MADE Network</div>
+                   <ArrowDown size={16} className="text-rose-400" />
+                   <div className="flex gap-1 w-full justify-center">
+                     <div className="w-6 h-6 bg-teal-400 rounded-sm"></div>
+                     <div className="w-6 h-6 bg-teal-400 rounded-sm animate-[loop-appear_2s_infinite]"></div>
+                     <div className="w-6 h-6 border-2 border-dashed border-rose-300 rounded-sm"></div>
+                     <div className="w-6 h-6 border-2 border-dashed border-rose-300 rounded-sm"></div>
+                     <div className="w-6 h-6 border-2 border-dashed border-rose-300 rounded-sm"></div>
+                   </div>
+                </div>
+
+                <div className="mt-4 text-center">
+                   <span className="bg-rose-100 text-rose-800 px-3 py-1 rounded-full text-xs font-bold">Slow Sequential Loop</span>
+                   <p className="text-[11px] text-gray-500 mt-2">Generating D variables requires D separate passes through the network.</p>
+                </div>
+             </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "28. Affine Coupling Layers",
+      subtitle: "The 'Lazy' Split Trick.",
+      content: (
+        <div className="space-y-4 animate-fade-in">
+          <p className="text-gray-700">
+            Coupling layers completely abandon the strict pixel-by-pixel autoregressive rule. Instead, they simply chop the entire data vector perfectly in half.
+          </p>
+          
+          <div className="bg-slate-900 p-6 rounded-xl border border-slate-700 shadow-xl relative mt-4">
+             <h4 className="text-white text-center font-bold mb-6">The Forward Transformation</h4>
+             
+             <div className="flex items-start justify-center gap-12 relative z-10">
+                {/* Left Side (Pass Through) */}
+                <div className="flex flex-col items-center gap-4 w-1/3">
+                   <div className="bg-blue-500 text-white px-6 py-2 rounded shadow-lg font-mono w-full text-center">X₁ (Half A)</div>
+                   
+                   <div className="h-32 w-1 bg-blue-500/50 relative">
+                     <div className="absolute top-0 w-3 h-3 -left-1 rounded-full bg-blue-400 animate-[ping_1.5s_infinite]"></div>
+                   </div>
+                   
+                   <div className="bg-blue-400 text-white px-6 py-2 rounded shadow-lg font-mono w-full text-center border border-blue-300">Y₁ = X₁</div>
+                   <p className="text-[10px] text-blue-200 mt-2 text-center">Passes through entirely untouched!</p>
+                </div>
+
+                {/* The Network Bridge */}
+                <div className="absolute left-[35%] top-[25%] flex items-center">
+                   <div className="w-16 h-1 bg-blue-500/50"></div>
+                   <div className="bg-slate-800 text-white p-3 rounded-lg border border-slate-600 shadow-lg text-center text-xs">
+                     Standard NN<br/><span className="text-[10px] text-gray-400">s(X₁), t(X₁)</span>
+                   </div>
+                   <div className="w-16 h-1 bg-rose-500/50 relative">
+                     <div className="absolute right-0 -top-1 border-t-4 border-b-4 border-l-8 border-t-transparent border-b-transparent border-l-rose-500"></div>
+                   </div>
+                </div>
+
+                {/* Right Side (Transform) */}
+                <div className="flex flex-col items-center gap-4 w-1/3">
+                   <div className="bg-rose-500 text-white px-6 py-2 rounded shadow-lg font-mono w-full text-center">X₂ (Half B)</div>
+                   
+                   <div className="h-12 w-1 bg-rose-500/50"></div>
+                   
+                   <div className="bg-amber-400 text-slate-900 font-bold p-3 rounded-full border-2 border-amber-200 shadow-lg flex items-center justify-center relative">
+                     <span className="text-xl leading-none px-1">Affine</span>
+                   </div>
+
+                   <div className="h-8 w-1 bg-rose-400/50 relative">
+                      <ArrowDown size={16} className="absolute -left-1.5 bottom-0 text-rose-400"/>
+                   </div>
+                   
+                   <div className="bg-rose-400 text-white px-4 py-2 rounded shadow-lg font-mono w-full text-center text-[10px] border border-rose-300 flex flex-col">
+                     <span className="font-bold text-xs mb-1">Y₂</span>
+                     <span>X₂ ⊙ exp(s) + t</span>
+                   </div>
+                   <p className="text-[10px] text-rose-200 mt-2 text-center">Warped by the output of Half A's network.</p>
+                </div>
+             </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "29. The Block-Triangular Jacobian",
+      subtitle: "Erasing the complex neural network from the math.",
+      content: (
+        <div className="space-y-4">
+          <p className="text-gray-700">
+            Because Half A (Y₁) passes through identically, and Half A calculates the parameters for Half B (Y₂), the Jacobian Matrix forms four distinct blocks:
+          </p>
+
+          <div className="flex flex-col md:flex-row gap-6 mt-4 items-center justify-center">
+             
+             {/* The Matrix */}
+             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-lg relative flex items-center justify-center w-[250px] h-[250px]">
+                {/* Large Brackets */}
+                <div className="absolute left-2 top-2 bottom-2 w-4 border-l-4 border-t-4 border-b-4 border-slate-800 rounded-l-lg"></div>
+                <div className="absolute right-2 top-2 bottom-2 w-4 border-r-4 border-t-4 border-b-4 border-slate-800 rounded-r-lg"></div>
+                
+                <div className="grid grid-cols-2 gap-4 w-full h-full p-4 relative z-10">
+                   <div className="flex flex-col items-center justify-center bg-blue-50 border border-blue-200 rounded p-2 text-center">
+                      <span className="text-[9px] text-gray-500 mb-1">∂Y₁ / ∂X₁</span>
+                      <strong className="text-xl text-blue-700">I</strong>
+                      <span className="text-[8px] text-blue-600 mt-1">Identity</span>
+                   </div>
+                   <div className="flex flex-col items-center justify-center bg-green-50 border-2 border-green-400 rounded p-2 text-center shadow-[0_0_15px_rgba(74,222,128,0.3)]">
+                      <span className="text-[9px] text-gray-500 mb-1">∂Y₁ / ∂X₂</span>
+                      <strong className="text-3xl text-green-600">0</strong>
+                      <span className="text-[8px] text-green-700 mt-1">No relation!</span>
+                   </div>
+                   <div className="flex flex-col items-center justify-center bg-slate-100 border border-slate-300 rounded p-2 text-center">
+                      <span className="text-[9px] text-gray-500 mb-1">∂Y₂ / ∂X₁</span>
+                      <strong className="text-xl text-slate-700">A</strong>
+                      <span className="text-[8px] text-slate-500 mt-1">NN Derivs</span>
+                   </div>
+                   <div className="flex flex-col items-center justify-center bg-rose-50 border border-rose-200 rounded p-2 text-center">
+                      <span className="text-[9px] text-gray-500 mb-1">∂Y₂ / ∂X₂</span>
+                      <strong className="text-sm text-rose-700 font-mono">diag<br/>(exp(s))</strong>
+                   </div>
+                </div>
+             </div>
+
+             <div className="flex flex-col gap-4 flex-1">
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200 shadow-sm">
+                   <h4 className="font-bold text-green-800 mb-1 flex items-center gap-2"><CheckCircle2 size={16}/> The Diagonal Rule</h4>
+                   <p className="text-xs text-green-700 leading-relaxed">Because the Top-Right block is exactly <strong>0</strong>, the entire matrix becomes a "Lower Triangular Block Matrix".</p>
+                </div>
+                <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 shadow-sm">
+                   <h4 className="font-bold text-indigo-800 mb-1 flex items-center gap-2"><Zap size={16}/> The Math Shortcut</h4>
+                   <p className="text-xs text-indigo-700 leading-relaxed">The determinant of a triangular matrix is just the product of its diagonal. The massive, terrifying Neural Network derivatives (Block A) are <strong>mathematically multiplied by zero and erased!</strong></p>
+                </div>
+                <div className="bg-slate-800 text-white p-3 rounded-lg text-center font-mono text-sm border border-slate-600 shadow-inner">
+                   log |det(J)| = Σ s(X₁)
+                </div>
+             </div>
+
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "30. The Lightning-Fast Inverse",
+      subtitle: "Why sampling is instant (No For Loops!).",
+      content: (
+        <div className="space-y-4 animate-fade-in">
+          <p className="text-gray-700">
+            For Model Predictive Control, we need to generate thousands of states instantly. Because Half A (X₁) passed through untouched, it is our key to reversing the entire layer in a single pass.
+          </p>
+
+          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative mt-4">
+             <h4 className="text-slate-800 text-center font-bold mb-6">The Inverse Transformation (Sampling)</h4>
+             
+             <div className="flex items-start justify-center gap-12 relative z-10">
+                {/* Left Side (Pass Through) */}
+                <div className="flex flex-col items-center gap-4 w-1/3">
+                   <div className="bg-blue-400 text-white px-6 py-2 rounded shadow font-mono w-full text-center">Y₁</div>
+                   
+                   <div className="h-32 w-1 bg-blue-300/50 relative">
+                     <ArrowDown size={16} className="absolute -left-1.5 bottom-0 text-blue-400"/>
+                   </div>
+                   
+                   <div className="bg-blue-500 text-white px-6 py-2 rounded shadow-lg font-mono w-full text-center border-2 border-blue-400 flex flex-col">
+                     <span className="font-bold text-xs mb-1">X₁</span>
+                     <span className="text-[10px]">X₁ = Y₁</span>
+                   </div>
+                </div>
+
+                {/* The Network Bridge */}
+                <div className="absolute left-[35%] top-[25%] flex items-center">
+                   <div className="w-16 h-1 bg-blue-500/50 relative">
+                     <ArrowRight size={14} className="absolute -right-1 -top-1.5 text-blue-500"/>
+                   </div>
+                   <div className="bg-emerald-100 text-emerald-800 p-3 rounded-lg border-2 border-emerald-400 shadow text-center text-xs font-bold relative">
+                     <span className="absolute -top-3 -right-3 flex h-5 w-5">
+                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                       <span className="relative inline-flex rounded-full h-5 w-5 bg-emerald-500 text-white items-center justify-center text-[10px]"><Zap size={10}/></span>
+                     </span>
+                     Standard NN<br/><span className="text-[10px] text-emerald-600 font-mono mt-1 block">s(Y₁), t(Y₁)</span>
+                   </div>
+                   <div className="w-16 h-1 bg-emerald-400/50 relative">
+                     <div className="absolute right-0 -top-1 border-t-4 border-b-4 border-l-8 border-t-transparent border-b-transparent border-l-emerald-500"></div>
+                   </div>
+                </div>
+
+                {/* Right Side (Transform) */}
+                <div className="flex flex-col items-center gap-4 w-1/3">
+                   <div className="bg-rose-400 text-white px-6 py-2 rounded shadow font-mono w-full text-center">Y₂</div>
+                   
+                   <div className="h-12 w-1 bg-rose-300/50"></div>
+                   
+                   <div className="bg-slate-100 text-slate-800 font-bold p-3 rounded border border-slate-300 shadow flex items-center justify-center">
+                     <span className="text-xs">Inverse Affine</span>
+                   </div>
+
+                   <div className="h-8 w-1 bg-rose-500/50 relative">
+                      <ArrowDown size={16} className="absolute -left-1.5 bottom-0 text-rose-500"/>
+                   </div>
+                   
+                   <div className="bg-rose-500 text-white px-2 py-2 rounded shadow-lg font-mono w-full text-center text-[9px] border-2 border-rose-400 flex flex-col">
+                     <span className="font-bold text-xs mb-1">X₂</span>
+                     <span>(Y₂ - t) ⊙ exp(-s)</span>
+                   </div>
+                </div>
+             </div>
+
+             <div className="mt-8 bg-emerald-50 border border-emerald-200 p-4 rounded-lg text-sm text-emerald-900 text-center shadow-inner">
+               Because Y₁ is instantly available, we can run the Neural Network to get the exact same s and t parameters <strong>in one single pass</strong>. There are no sequential loops! This makes Affine Coupling perfectly suited for fast, real-time Model Predictive Control simulations.
+             </div>
           </div>
         </div>
       )
