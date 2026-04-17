@@ -1561,9 +1561,9 @@ export default function App() {
                
                {/* Outputs */}
                <div className="flex w-full justify-around z-10">
-                 <div className="w-14 h-14 rounded-full bg-orange-200 border-2 border-orange-400 flex items-center justify-center font-bold text-orange-900 text-xs shadow">p(x₁)</div>
-                 <div className="w-14 h-14 rounded-full bg-orange-200 border-2 border-orange-400 flex items-center justify-center font-bold text-orange-900 text-xs shadow flex-col leading-tight"><span>p(x₂)</span><span className="text-[9px] font-normal">m=2</span></div>
-                 <div className="w-14 h-14 rounded-full bg-orange-200 border-2 border-orange-400 flex items-center justify-center font-bold text-orange-900 text-xs shadow flex-col leading-tight"><span>p(x₃)</span><span className="text-[9px] font-normal">m=3</span></div>
+                 <div className="w-14 h-14 rounded-full bg-orange-200 border-2 border-orange-400 flex items-center justify-center font-bold text-orange-900 text-xs shadow">p(X₁)</div>
+                 <div className="w-14 h-14 rounded-full bg-orange-200 border-2 border-orange-400 flex items-center justify-center font-bold text-orange-900 text-xs shadow flex-col leading-tight"><span>p(X₂)</span><span className="text-[9px] font-normal">m=2</span></div>
+                 <div className="w-14 h-14 rounded-full bg-orange-200 border-2 border-orange-400 flex items-center justify-center font-bold text-orange-900 text-xs shadow flex-col leading-tight"><span>p(X₃)</span><span className="text-[9px] font-normal">m=3</span></div>
                </div>
 
                {/* Hidden */}
@@ -1574,9 +1574,9 @@ export default function App() {
 
                {/* Inputs */}
                <div className="flex w-full justify-around z-10">
-                 <div className="w-14 h-14 rounded-full bg-blue-200 border-2 border-blue-400 flex flex-col items-center justify-center font-bold text-blue-900 text-xs shadow leading-tight"><span>x₁</span><span className="text-[9px] font-normal">m=1</span></div>
-                 <div className="w-14 h-14 rounded-full bg-blue-200 border-2 border-blue-400 flex flex-col items-center justify-center font-bold text-blue-900 text-xs shadow leading-tight"><span>x₂</span><span className="text-[9px] font-normal">m=2</span></div>
-                 <div className="w-14 h-14 rounded-full bg-blue-200 border-2 border-blue-400 flex flex-col items-center justify-center font-bold text-blue-900 text-xs shadow leading-tight"><span>x₃</span><span className="text-[9px] font-normal">m=3</span></div>
+                 <div className="w-14 h-14 rounded-full bg-blue-200 border-2 border-blue-400 flex flex-col items-center justify-center font-bold text-blue-900 text-xs shadow leading-tight"><span>X₁</span><span className="text-[9px] font-normal">m=1</span></div>
+                 <div className="w-14 h-14 rounded-full bg-blue-200 border-2 border-blue-400 flex flex-col items-center justify-center font-bold text-blue-900 text-xs shadow leading-tight"><span>X₂</span><span className="text-[9px] font-normal">m=2</span></div>
+                 <div className="w-14 h-14 rounded-full bg-blue-200 border-2 border-blue-400 flex flex-col items-center justify-center font-bold text-blue-900 text-xs shadow leading-tight"><span>X₃</span><span className="text-[9px] font-normal">m=3</span></div>
                </div>
 
                {/* SVGs Lines */}
@@ -1994,7 +1994,162 @@ export default function App() {
       )
     },
     {
-      title: "34. Why Coupling is Easier to Code",
+      title: "34. Volume Penalty: Shift vs. Stretch",
+      subtitle: "Why the Jacobian completely ignores the t variable.",
+      content: (
+        <div className="space-y-4 animate-fade-in">
+          <p className="text-gray-700">
+            Do we calculate loss on s and t? We calculate loss directly on <strong>s</strong>, but we NEVER calculate loss directly on <strong>t</strong>. Here is the elegant reason why:
+          </p>
+          
+          <div className="flex flex-col md:flex-row gap-6 mt-4">
+             {/* Translation (t) */}
+             <div className="flex-1 bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center">
+                <h4 className="font-bold text-indigo-800 mb-4 w-full text-center border-b border-indigo-100 pb-2">Translation (t): No Stretch</h4>
+                
+                <style dangerouslySetInnerHTML={{__html: `
+                  @keyframes shift-block {
+                    0%, 100% { transform: translateX(-40px); }
+                    50% { transform: translateX(40px); }
+                  }
+                `}} />
+                
+                <div className="w-full bg-indigo-50 h-32 rounded-lg border border-indigo-200 flex items-center justify-center relative overflow-hidden mb-4">
+                   <div className="w-16 h-16 bg-indigo-500 rounded border-2 border-indigo-700 animate-[shift-block_3s_ease-in-out_infinite] shadow-lg flex items-center justify-center text-white text-[10px] font-bold">1 lb clay</div>
+                   {/* Background grid */}
+                   <div className="absolute inset-0" style={{backgroundImage: 'linear-gradient(#c7d2fe 1px, transparent 1px), linear-gradient(90deg, #c7d2fe 1px, transparent 1px)', backgroundSize: '16px 16px', opacity: 0.5, zIndex: 0}}></div>
+                </div>
+                
+                <p className="text-xs text-slate-600 text-center leading-relaxed">
+                   <strong>The variable t is added to the data (a shift).</strong> Imagine a 1-pound block of clay resting on a table. If I pick up the clay and move it 5 inches to the left (applying t), did the volume change? <strong>No.</strong>
+                </p>
+                <div className="mt-3 bg-indigo-100 text-indigo-900 text-[11px] font-bold px-3 py-1.5 rounded-full w-full text-center">Jacobian Determinant Ignores t</div>
+             </div>
+
+             {/* Scale (s) */}
+             <div className="flex-1 bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center">
+                <h4 className="font-bold text-teal-800 mb-4 w-full text-center border-b border-teal-100 pb-2">Scale (s): The Stretch</h4>
+                
+                <style dangerouslySetInnerHTML={{__html: `
+                  @keyframes stretch-block {
+                    0%, 100% { transform: scaleX(1); opacity: 1; }
+                    50% { transform: scaleX(2.5); opacity: 0.5; }
+                  }
+                `}} />
+                
+                <div className="w-full bg-teal-50 h-32 rounded-lg border border-teal-200 flex items-center justify-center relative overflow-hidden mb-4">
+                   <div className="w-16 h-16 bg-teal-500 rounded border-2 border-teal-700 animate-[stretch-block_3s_ease-in-out_infinite] shadow-lg flex items-center justify-center text-white text-[10px] font-bold whitespace-nowrap">Ink Density</div>
+                   {/* Background grid */}
+                   <div className="absolute inset-0" style={{backgroundImage: 'linear-gradient(#99f6e4 1px, transparent 1px), linear-gradient(90deg, #99f6e4 1px, transparent 1px)', backgroundSize: '16px 16px', opacity: 0.5, zIndex: 0}}></div>
+                </div>
+                
+                <p className="text-xs text-slate-600 text-center leading-relaxed">
+                   <strong>The variable s multiplies the data (a scale).</strong> If I multiply data by exp(s), I stretch the rubber band! That means the density of the probability ink just got cut in half.
+                </p>
+                <div className="mt-3 bg-teal-100 text-teal-900 text-[11px] font-bold px-3 py-1.5 rounded-full w-full text-center">Jacobian Determinant IS exp(s)!</div>
+             </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "35. The Magic 'Cancel Out' Trick",
+      subtitle: "How terrifying matrix math simplifies into simple addition.",
+      content: (
+        <div className="space-y-4 animate-fade-in">
+          <p className="text-gray-700">
+             The formula for the Volume Penalty requires us to calculate the <strong>Log-Determinant</strong>. Let's see what happens to exp(s)...
+          </p>
+
+          <div className="bg-slate-900 p-8 rounded-xl text-white shadow-xl mt-4 flex flex-col items-center justify-center border border-slate-700">
+             
+             <div className="bg-slate-800 px-6 py-3 rounded-lg border border-slate-600 shadow-sm flex items-center gap-3 text-lg font-mono text-slate-300">
+                Volume Penalty = <span className="text-rose-400 font-bold">log</span> ( |<span className="text-white">det(J)</span>| )
+             </div>
+
+             <ArrowDown size={24} className="text-slate-600 my-4" />
+
+             <div className="bg-slate-800 px-6 py-3 rounded-lg border border-slate-600 shadow-sm flex items-center gap-3 text-lg font-mono text-slate-300">
+                Volume Penalty = <span className="text-rose-400 font-bold">log</span> ( <span className="text-teal-400 font-bold">exp(s)</span> )
+             </div>
+
+             <ArrowDown size={24} className="text-slate-600 my-4" />
+
+             <div className="relative inline-block my-2">
+                <span className="text-5xl font-black text-rose-500 opacity-50 relative inline-block">
+                   log( exp(
+                   {/* Slash line */}
+                   <div className="absolute top-1/2 left-[-10%] w-[120%] h-1.5 bg-red-500 -rotate-12 z-10 shadow-lg"></div>
+                </span>
+                <span className="text-6xl font-black text-teal-400 mx-2 animate-pulse drop-shadow-[0_0_15px_rgba(45,212,191,0.6)]">s</span>
+                <span className="text-5xl font-black text-rose-500 opacity-50 relative inline-block">
+                   ) )
+                   {/* Slash line */}
+                   <div className="absolute top-1/2 left-[-10%] w-[120%] h-1.5 bg-red-500 -rotate-12 z-10 shadow-lg"></div>
+                </span>
+             </div>
+             
+             <p className="text-amber-400 font-bold text-sm mt-4 uppercase tracking-widest">Mathematical Opposites Cancel Out!</p>
+
+             <div className="mt-8 bg-teal-900/40 border border-teal-500/50 px-8 py-4 rounded-xl text-center shadow-lg">
+                <span className="block text-2xl font-bold text-teal-400 font-mono">Volume Penalty = s</span>
+                <p className="text-xs text-teal-100 mt-2 opacity-80">The massive Jacobian matrix calculation literally simplifies down to just taking the <strong>s</strong> numbers from the Neural Network and adding them up!</p>
+             </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "36. Putting It All Together",
+      subtitle: "Calculating the final loss in three easy steps.",
+      content: (
+        <div className="space-y-4 animate-fade-in">
+          <p className="text-gray-700">
+            At the end of the entire network, your real pipeline data (X) has been warped into Y_final (which we call Z_final). PyTorch evaluates everything in three lines of code.
+          </p>
+
+          <div className="flex flex-col gap-4 mt-4">
+             {/* Step 1 */}
+             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-start gap-4">
+                <div className="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 shadow">1</div>
+                <div className="w-full">
+                   <h4 className="font-bold text-indigo-800 mb-1">The Blueprint Score</h4>
+                   <code className="bg-indigo-50 text-indigo-900 px-3 py-1.5 rounded text-sm font-mono border border-indigo-100 block w-full mb-2">score = bell_curve.log_prob(Z_final)</code>
+                   <p className="text-xs text-gray-500 bg-slate-50 p-2 rounded border border-slate-100">
+                      <strong>Notice:</strong> <code>t</code> is implicitly graded here! We don't evaluate <code>t</code> directly, but if the network chose a bad <code>t</code>, Z_final will land far away from the center of the bell curve, and this score will be terrible.
+                   </p>
+                </div>
+             </div>
+
+             {/* Step 2 */}
+             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-start gap-4">
+                <div className="bg-teal-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 shadow">2</div>
+                <div className="w-full">
+                   <h4 className="font-bold text-teal-800 mb-1">The Volume Penalty</h4>
+                   <code className="bg-teal-50 text-teal-900 px-3 py-1.5 rounded text-sm font-mono border border-teal-100 block w-full mb-2">penalty = sum(s)</code>
+                   <p className="text-xs text-gray-500 bg-slate-50 p-2 rounded border border-slate-100">
+                      PyTorch grabs all the <code>s</code> vectors generated by your Neural Networks across every layer and simply adds them up.
+                   </p>
+                </div>
+             </div>
+
+             {/* Step 3 */}
+             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-start gap-4">
+                <div className="bg-rose-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 shadow">3</div>
+                <div className="w-full">
+                   <h4 className="font-bold text-rose-800 mb-1">Total Loss</h4>
+                   <code className="bg-rose-50 text-rose-900 px-3 py-1.5 rounded text-sm font-mono border border-rose-100 block w-full mb-2">loss = -1 * (score + penalty)</code>
+                   <p className="text-xs text-gray-500 bg-slate-50 p-2 rounded border border-slate-100">
+                      We flip it negative because optimizers minimize to zero. <code>loss.backward()</code> handles the rest, tracing the math backward to update the neural network weights!
+                   </p>
+                </div>
+             </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "37. Why Coupling is Easier to Code",
       subtitle: "Goodbye, complicated binary masks!",
       content: (
         <div className="space-y-4 animate-fade-in">
