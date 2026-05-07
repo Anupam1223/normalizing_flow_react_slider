@@ -40,7 +40,6 @@ import Section35, { meta as m35 } from './sections/Section35';
 import Section36, { meta as m36 } from './sections/Section36';
 import Section37, { meta as m37 } from './sections/Section37';
 import Section38, { meta as m38 } from './sections/Section38';
-import Section39, { meta as m39 } from './sections/Section39';
 
 export default function App() {
   // ── Shared state ─────────────────────────────────────────────────────────────
@@ -136,7 +135,6 @@ export default function App() {
     { meta: m36, component: <Section36 /> },
     { meta: m37, component: <Section37 /> },
     { meta: m38, component: <Section38 /> },
-    { meta: m39, component: <Section39 /> },
   ];
 
   const current = steps[step];
