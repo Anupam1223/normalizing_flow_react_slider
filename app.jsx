@@ -40,6 +40,7 @@ import Section35, { meta as m35 } from './sections/Section35';
 import Section36, { meta as m36 } from './sections/Section36';
 import Section37, { meta as m37 } from './sections/Section37';
 import Section38, { meta as m38 } from './sections/Section38';
+import Section39, { meta as m39 } from './sections/Section39';
 
 export default function App() {
   // ── Shared state ─────────────────────────────────────────────────────────────
@@ -135,6 +136,7 @@ export default function App() {
     { meta: m36, component: <Section36 /> },
     { meta: m37, component: <Section37 /> },
     { meta: m38, component: <Section38 /> },
+    { meta: m39, component: <Section39 /> },
   ];
 
   const current = steps[step];
@@ -185,19 +187,33 @@ export default function App() {
         </div>
 
         {/* Footer / Navigation */}
-        <div className="bg-slate-50 border-t border-slate-200 p-5 flex justify-between items-center">
+        <div className="bg-slate-50 border-t border-slate-200 p-5 flex justify-between items-center gap-4">
           <button
             onClick={() => setStep(s => Math.max(0, s - 1))}
             disabled={step === 0}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold transition-all ${step === 0 ? 'text-slate-400 bg-slate-100 cursor-not-allowed' : 'text-slate-700 bg-white hover:bg-slate-200 hover:shadow shadow-sm border border-slate-200 active:scale-95'}`}
+            className={`flex items-center whitespace-nowrap gap-2 px-5 py-2.5 rounded-lg font-bold transition-all ${step === 0 ? 'text-slate-400 bg-slate-100 cursor-not-allowed' : 'text-slate-700 bg-white hover:bg-slate-200 hover:shadow shadow-sm border border-slate-200 active:scale-95'}`}
           >
             <ArrowLeft size={18} /> Previous
           </button>
 
+          <div className="hidden md:block flex-1 max-w-md">
+            <select
+              value={step}
+              onChange={(e) => setStep(Number(e.target.value))}
+              className="w-full text-center px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium cursor-pointer truncate"
+            >
+              {steps.map((sec, idx) => (
+                <option key={idx} value={idx}>
+                  Slide {idx + 1}: {sec.meta.title}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <button
             onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}
             disabled={step === steps.length - 1}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold transition-all shadow-sm ${step === steps.length - 1 ? 'text-slate-400 bg-slate-100 cursor-not-allowed border border-slate-200' : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-md active:scale-95'}`}
+            className={`flex items-center whitespace-nowrap gap-2 px-5 py-2.5 rounded-lg font-bold transition-all shadow-sm ${step === steps.length - 1 ? 'text-slate-400 bg-slate-100 cursor-not-allowed border border-slate-200' : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-md active:scale-95'}`}
           >
             Next <ArrowRight size={18} />
           </button>
