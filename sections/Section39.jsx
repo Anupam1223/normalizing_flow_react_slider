@@ -24,7 +24,12 @@ import {
   Pause,
   Layers,
   Columns,
-  Sigma
+  Sigma,
+  ArrowRightLeft,
+  Combine,
+  Bell,
+  Grid3X3,
+  Calculator
 } from 'lucide-react';
 
 export const meta = {
@@ -50,7 +55,7 @@ const VisualButton = ({ onClick, disabled, children, active }) => (
   </button>
 );
 
-// 1. The Exact Sequence
+// 1. Coupling Layer 1
 const AnimatedExactSequence = () => {
   const [seqStep, setSeqStep] = useState(0); 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -68,14 +73,14 @@ const AnimatedExactSequence = () => {
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-16">
       <div className="text-xs text-slate-400 mb-6 font-mono text-center">
-        The Sequence of Operations (During Training)
+        Coupling Layer 1: Transforming the First Half
       </div>
 
       <div className="flex w-full items-center justify-between max-w-2xl mt-4 px-4">
          
          <div className="flex flex-col items-center relative z-10">
             <div className="bg-rose-900/50 border border-rose-500 text-rose-300 font-bold px-4 py-2 rounded-xl mb-4 shadow-lg">θ (Future Data)</div>
-            <svg width="60" height="40" className="mb-4">
+            <svg width="60" height="40" className="mb-4 overflow-visible">
               <path d="M 30 0 L 10 40" stroke="#f43f5e" strokeWidth="2" fill="none" />
               <path d="M 30 0 L 50 40" stroke="#f43f5e" strokeWidth="2" fill="none" />
             </svg>
@@ -88,7 +93,7 @@ const AnimatedExactSequence = () => {
          </div>
 
          <div className="relative flex items-center justify-center h-full w-24">
-            <svg className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${seqStep >= 1 ? 'opacity-100' : 'opacity-0'}`}>
+            <svg className={`absolute inset-0 w-full h-full transition-opacity duration-300 overflow-visible ${seqStep >= 1 ? 'opacity-100' : 'opacity-0'}`}>
                <path d="M 0 65 L 100 110" stroke="#818cf8" strokeWidth="2" strokeDasharray="4" className="animate-pulse" />
                <path d="M 0 200 L 100 130" stroke="#818cf8" strokeWidth="2" strokeDasharray="4" className="animate-pulse" />
             </svg>
@@ -98,7 +103,7 @@ const AnimatedExactSequence = () => {
             <div className="bg-slate-800 border-2 border-indigo-500 p-4 rounded-xl flex flex-col items-center shadow-[0_0_20px_rgba(99,102,241,0.3)]">
                <Cpu size={24} className="text-indigo-400 mb-1" />
                <span className="text-white font-bold text-sm">The Brain</span>
-               <span className="text-[10px] text-slate-400 mt-1">Residual MLP</span>
+               <span className="text-[10px] text-slate-400 mt-1">Residual MLP 1</span>
             </div>
             {seqStep >= 2 && (
                <div className="mt-4 flex gap-1 animate-in slide-in-from-top-2">
@@ -110,7 +115,7 @@ const AnimatedExactSequence = () => {
          </div>
 
          <div className="relative flex items-center justify-center h-full w-24">
-            <svg className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${seqStep >= 2 ? 'opacity-100' : 'opacity-0'}`}>
+            <svg className={`absolute inset-0 w-full h-full transition-opacity duration-300 overflow-visible ${seqStep >= 2 ? 'opacity-100' : 'opacity-0'}`}>
                <path d="M 0 150 L 100 120" stroke="#a855f7" strokeWidth="2" strokeDasharray="4" className="animate-pulse" />
             </svg>
          </div>
@@ -125,12 +130,12 @@ const AnimatedExactSequence = () => {
                {seqStep >= 3 && (
                  <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible z-20">
                     <line x1="50" y1="130" x2="50" y2="50" stroke="#f43f5e" strokeWidth="2" strokeDasharray="2" className="animate-in slide-in-from-bottom-4 duration-500" />
-                    <line x1="50" y1="50" x2="-30" y2="50" stroke="#38bdf8" strokeWidth="2" strokeDasharray="2" className="animate-in slide-in-from-right-4 duration-500 delay-300" />
+                    <line x1="50" y1="50" x2="-30" y2="50" stroke="#f472b6" strokeWidth="2" strokeDasharray="2" className="animate-in slide-in-from-right-4 duration-500 delay-300" />
                     <circle cx="50" cy="50" r="4" fill="#fff" className="animate-in fade-in duration-300 delay-300" />
                  </svg>
                )}
                <span className="absolute -bottom-6 text-[10px] text-rose-400 font-bold left-1/2 -translate-x-1/2">θ₂ (In)</span>
-               <span className="absolute -left-10 text-[10px] text-sky-400 font-bold top-1/2 -translate-y-1/2">z₂ (Out)</span>
+               <span className="absolute -left-10 text-[10px] text-fuchsia-400 font-bold top-1/2 -translate-y-1/2">Y₂ (Out)</span>
             </div>
          </div>
 
@@ -139,8 +144,8 @@ const AnimatedExactSequence = () => {
       <div className="text-[11px] text-slate-400 text-center max-w-lg mt-12 h-16">
         {seqStep === 0 && "1. We take a training sample and split the Future Data (θ)."}
         {seqStep === 1 && <span className="text-indigo-300">2. We feed the Current State (x) and Half A (θ₁) into the Neural Network.</span>}
-        {seqStep === 2 && <span className="text-fuchsia-300">3. The Network outputs W, H, D. We INSTANTLY use them to draw the Spline Box for this specific data point.</span>}
-        {seqStep === 3 && <span className="text-sky-300">4. We push Half B (θ₂) into the bottom of the box. It hits the curve and shoots out the side as z₂.</span>}
+        {seqStep === 2 && <span className="text-fuchsia-300">3. The Network outputs W, H, D. We INSTANTLY use them to draw the Spline Box.</span>}
+        {seqStep === 3 && <span className="text-fuchsia-400">4. We push Half B (θ₂) into the bottom of the box. It hits the curve and shoots out as Y₂. Notice θ₁ was NEVER transformed!</span>}
       </div>
 
       <div className="absolute bottom-4 flex gap-4">
@@ -158,7 +163,144 @@ const AnimatedExactSequence = () => {
   );
 };
 
-// 2. The Latent Space Paradox
+// 2. The Swap
+const AnimatedLayerSwap = () => {
+  const [swapStep, setSwapStep] = useState(0); 
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    let int;
+    if (isPlaying) {
+      int = setInterval(() => {
+        setSwapStep(prev => (prev + 1) % 4);
+      }, 2500);
+    }
+    return () => clearInterval(int);
+  }, [isPlaying]);
+
+  return (
+    <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-16">
+      <div className="text-xs text-slate-400 mb-6 font-mono text-center">
+        Layer 2: The Swap (Transforming the Untouched Half)
+      </div>
+
+      <div className="flex flex-col w-full max-w-lg items-center">
+         
+         <div className="flex justify-between w-64 mb-4 z-10">
+            <div className="bg-rose-900/30 border border-rose-500/50 text-rose-300 px-4 py-2 rounded-xl text-sm font-bold shadow-md">θ₁ (Untouched)</div>
+            <div className="bg-fuchsia-900/50 border border-fuchsia-500 text-fuchsia-300 px-4 py-2 rounded-xl text-sm font-bold shadow-md">Y₂ (Transformed)</div>
+         </div>
+
+         <div className={`flex flex-col items-center transition-all duration-500 ${swapStep >= 1 ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="bg-indigo-950 border border-indigo-500/50 text-indigo-300 text-[10px] px-2 py-1 rounded font-mono mb-2">torch.flip()</div>
+            <ArrowRightLeft size={24} className="text-indigo-400 mb-2" />
+         </div>
+
+         <div className={`flex justify-between w-64 mt-2 transition-all duration-500 ${swapStep >= 1 ? 'opacity-100' : 'opacity-0 -translate-y-4'}`}>
+            <div className="bg-fuchsia-900/50 border border-fuchsia-500 text-fuchsia-300 px-4 py-2 rounded-xl text-sm font-bold shadow-md">Y₂ (New Half A)</div>
+            <div className="bg-rose-900/30 border border-rose-500/50 text-rose-300 px-4 py-2 rounded-xl text-sm font-bold shadow-md">θ₁ (New Half B)</div>
+         </div>
+
+         <div className="flex w-full mt-8 items-start justify-center gap-12">
+            
+            <div className={`flex flex-col items-center transition-all duration-500 ${swapStep >= 2 ? 'opacity-100' : 'opacity-0'}`}>
+               <ArrowDown size={16} className="text-slate-500 mb-2" />
+               <div className="bg-slate-800 border-2 border-indigo-500 p-4 rounded-xl flex flex-col items-center shadow-lg">
+                  <Cpu size={20} className="text-indigo-400 mb-1" />
+                  <span className="text-white font-bold text-[10px]">Residual MLP 2</span>
+               </div>
+               {swapStep >= 2 && (
+                 <div className="flex gap-1 mt-2">
+                   <span className="bg-fuchsia-900/50 text-fuchsia-300 px-1.5 py-0.5 text-[8px] rounded border border-fuchsia-500/30">W₂</span>
+                   <span className="bg-sky-900/50 text-sky-300 px-1.5 py-0.5 text-[8px] rounded border border-sky-500/30">H₂</span>
+                   <span className="bg-emerald-900/50 text-emerald-300 px-1.5 py-0.5 text-[8px] rounded border border-emerald-500/30">D₂</span>
+                 </div>
+               )}
+            </div>
+
+            <div className={`flex flex-col items-center transition-all duration-500 ${swapStep >= 3 ? 'opacity-100' : 'opacity-0'}`}>
+               <ArrowDown size={16} className="text-slate-500 mb-2" />
+               <div className="relative w-20 h-20 border-l-2 border-b-2 border-slate-500 bg-slate-800/40 flex items-center justify-center">
+                  <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible">
+                     <path d="M 0 100 C 30 90, 40 50, 100 0" fill="none" stroke="#38bdf8" strokeWidth="3" className="drop-shadow-[0_0_8px_#38bdf8]" />
+                  </svg>
+               </div>
+               <ArrowDown size={16} className="text-slate-500 mt-2 mb-2" />
+               <div className="bg-sky-600 border border-sky-400 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-[0_0_10px_#0284c7]">Z₂ (Latent Space)</div>
+            </div>
+         </div>
+
+      </div>
+
+      <div className="text-[11px] text-slate-400 text-center max-w-lg mt-8 h-16">
+        {swapStep === 0 && "1. We start with the outputs from Layer 1. Notice θ₁ was never transformed."}
+        {swapStep === 1 && <span className="text-indigo-400">2. THE SWAP: We physically flip the array. The transformed half (Y₂) becomes the new condition, and the untouched half (θ₁) moves into the target position!</span>}
+        {swapStep === 2 && <span className="text-fuchsia-300">3. MLP 2 looks at Y₂ and x to draw a brand new Spline Box.</span>}
+        {swapStep === 3 && <span className="text-sky-300">4. Finally, θ₁ gets pushed through the new Spline and reaches the Latent Space as Z₂! Both halves have now been transformed.</span>}
+      </div>
+
+      <div className="absolute bottom-4 flex gap-4">
+        <VisualButton onClick={() => setSwapStep(s => Math.max(0, s - 1))} active={false} disabled={swapStep === 0 || isPlaying}>
+          <ChevronLeft size={14} /> Previous Stage
+        </VisualButton>
+        <VisualButton onClick={() => setIsPlaying(!isPlaying)} active={isPlaying}>
+          {isPlaying ? <Pause size={14} /> : <Play size={14} />} {isPlaying ? "Pause Flow" : "Play Flow"}
+        </VisualButton>
+        <VisualButton onClick={() => setSwapStep(s => Math.min(3, s + 1))} active={true} disabled={swapStep === 3 || isPlaying}>
+          Next Stage <ChevronRight size={14} />
+        </VisualButton>
+      </div>
+    </div>
+  );
+};
+
+// 3. Final Concatenation
+const AnimatedFinalConcatenation = () => {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const int = setInterval(() => {
+      setStep(s => (s + 1) % 2);
+    }, 2000);
+    return () => clearInterval(int);
+  }, []);
+
+  return (
+    <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
+      <div className="text-xs text-slate-400 mb-6 font-mono text-center">
+        The Final Assembly: torch.cat([Y₂, Z₂], dim=-1)
+      </div>
+
+      <div className="flex flex-col items-center w-full max-w-lg mt-8">
+        
+        <div className="flex justify-between w-64 mb-8 h-12 relative">
+           <div className={`absolute w-28 h-full bg-fuchsia-900/50 border-2 border-fuchsia-500 text-fuchsia-300 flex items-center justify-center rounded-xl text-sm font-bold shadow-md transition-all duration-700 ${step === 1 ? 'left-[4px]' : '-left-8'}`}>
+             Y₂ (from θ₂)
+           </div>
+           
+           <div className={`absolute w-28 h-full bg-sky-900/50 border-2 border-sky-500 text-sky-300 flex items-center justify-center rounded-xl text-sm font-bold shadow-md transition-all duration-700 ${step === 1 ? 'right-[4px]' : '-right-8'}`}>
+             Z₂ (from θ₁)
+           </div>
+        </div>
+
+        <div className={`transition-all duration-700 flex flex-col items-center ${step === 1 ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+           <ArrowDown size={24} className="text-slate-500 mb-4" />
+           <div className="bg-indigo-600 border border-indigo-400 text-white px-8 py-3 rounded-xl text-lg font-extrabold shadow-[0_0_20px_#4f46e5] tracking-widest">
+             Z_final
+           </div>
+           <span className="text-[10px] font-mono text-indigo-300 mt-2">Full 12-Dimensional Latent Vector</span>
+        </div>
+
+      </div>
+
+      <div className="text-[11px] text-slate-400 text-center max-w-md mt-12 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+        Yes, we concatenate them! Because Layer 1 transformed Half B into <strong>Y₂</strong>, and Layer 2 transformed Half A into <strong>Z₂</strong>, both halves of our data are now successfully Gaussianized. We physically stick the arrays back together to form the complete <strong>Z_final</strong> vector!
+      </div>
+    </div>
+  );
+};
+
+// 4. The Latent Space Paradox
 const AnimatedLatentSpaceParadox = () => {
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
@@ -171,13 +313,13 @@ const AnimatedLatentSpaceParadox = () => {
          
          <div className="flex justify-between items-center w-full mb-8">
             <div className="flex flex-col items-center bg-slate-800/50 p-4 rounded-xl border border-slate-700 relative">
-               <span className="text-[10px] text-sky-400 font-bold mb-2">Network Output</span>
-               <div className="w-16 h-8 bg-sky-900/30 border border-sky-50 flex items-center justify-center rounded shadow-[0_0_10px_rgba(56,189,248,0.2)]">
-                  <span className="text-sky-100 font-bold">z₂ = 1.2</span>
+               <span className="text-[10px] text-indigo-300 font-bold mb-2">Network Output</span>
+               <div className="w-20 h-8 bg-indigo-900/50 border border-indigo-500 flex items-center justify-center rounded shadow-[0_0_10px_rgba(79,70,229,0.5)]">
+                  <span className="text-indigo-100 font-bold">Z_final</span>
                </div>
                <svg className="absolute -right-16 top-1/2 -translate-y-1/2 w-16 h-8 overflow-visible">
-                  <line x1="0" y1="4" x2="60" y2="4" stroke="#38bdf8" strokeWidth="2" strokeDasharray="4" className="animate-pulse" />
-                  <polygon points="55,0 65,4 55,8" fill="#38bdf8" />
+                  <line x1="0" y1="4" x2="60" y2="4" stroke="#4f46e5" strokeWidth="2" strokeDasharray="4" className="animate-pulse" />
+                  <polygon points="55,0 65,4 55,8" fill="#4f46e5" />
                </svg>
             </div>
 
@@ -192,7 +334,7 @@ const AnimatedLatentSpaceParadox = () => {
                   <span className="absolute -bottom-5 text-[8px] text-slate-400">0.0</span>
                </div>
                <div className="mt-4 bg-slate-950 px-3 py-1.5 rounded border border-slate-700 text-[10px] font-mono text-slate-300">
-                  Loss = -log( BellCurve(1.2) )
+                  Loss = -log( BellCurve(Z_final) )
                </div>
 
                <svg className="absolute -left-20 -bottom-8 w-64 h-16 overflow-visible">
@@ -205,21 +347,96 @@ const AnimatedLatentSpaceParadox = () => {
 
          <div className="text-[11px] text-slate-400 text-center max-w-md mt-6 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
             The Latent Space isn't a place we "create" beforehand. It is literally just a <strong>Math Formula (The Gaussian Bell Curve)</strong>. <br/><br/>
-            When our Spline outputs a number (z₂), we plug it into the Bell Curve formula. If the number falls in the fat part of the bell, the Loss is low. If it falls way outside, the Loss is high. Backpropagation then yells at the MLP: <span className="text-rose-400 italic">"Hey! Change your weights so you draw a different Spline Box next time, because that output was a bad Gaussian!"</span>
+            When we assemble <strong>Z_final</strong>, we plug it into the Bell Curve formula. If the number falls in the fat part of the bell, the Loss is low. If it falls way outside, the Loss is high. Backpropagation then yells at the MLP to draw a different Spline Box next time!
          </div>
       </div>
     </div>
   );
 };
 
-// 3. Affine vs Spline
+// 5. The Standard Normal
+const AnimatedStandardNormal = () => {
+  const [zVal, setZVal] = useState(0); 
+
+  return (
+    <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
+      
+      <div className="text-xs text-slate-400 mb-6 font-mono text-center">
+        Which Bell Curve? The Standard Normal N(0, 1)
+      </div>
+
+      <div className="flex flex-col items-center w-full max-w-md">
+         
+         <div className="relative w-full h-40 border-b-2 border-slate-500 mb-6 flex items-end justify-center">
+            
+            <svg viewBox="0 0 100 50" className="w-full h-full absolute inset-0 overflow-visible">
+               <path d="M 0 50 C 30 50, 40 5, 50 5 C 60 5, 70 50, 100 50" fill="rgba(16, 185, 129, 0.1)" stroke="#10b981" strokeWidth="2" />
+               
+               <line x1="50" y1="5" x2="50" y2="50" stroke="#475569" strokeWidth="1" strokeDasharray="4" />
+               
+               {zVal === 0 && (
+                 <g className="animate-in fade-in duration-300">
+                   <line x1="50" y1="50" x2="50" y2="5" stroke="#fff" strokeWidth="1.5" strokeDasharray="2" />
+                   <circle cx="50" cy="5" r="4" fill="#fff" className="shadow-[0_0_10px_#fff]" />
+                 </g>
+               )}
+               {zVal === 1 && (
+                 <g className="animate-in fade-in duration-300">
+                   <line x1="65" y1="50" x2="65" y2="25" stroke="#fff" strokeWidth="1.5" strokeDasharray="2" />
+                   <circle cx="65" cy="25" r="4" fill="#fff" className="shadow-[0_0_10px_#fff]" />
+                 </g>
+               )}
+               {zVal === 2 && (
+                 <g className="animate-in fade-in duration-300">
+                   <line x1="90" y1="50" x2="90" y2="48" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="2" />
+                   <circle cx="90" cy="48" r="4" fill="#ef4444" className="shadow-[0_0_10px_#ef4444]" />
+                 </g>
+               )}
+            </svg>
+
+            <span className="absolute -bottom-5 left-[50%] -translate-x-1/2 text-[10px] text-slate-300 font-bold">0</span>
+            <span className="absolute -bottom-5 left-[65%] -translate-x-1/2 text-[10px] text-slate-500">+1.5</span>
+            <span className="absolute -bottom-5 left-[90%] -translate-x-1/2 text-[10px] text-slate-500">+4.0</span>
+         </div>
+
+         <div className="flex gap-4 w-full justify-center mb-6">
+            <VisualButton onClick={() => setZVal(0)} active={zVal === 0}>Z = 0.0</VisualButton>
+            <VisualButton onClick={() => setZVal(1)} active={zVal === 1}>Z = 1.5</VisualButton>
+            <VisualButton onClick={() => setZVal(2)} active={zVal === 2}>Z = 4.0</VisualButton>
+         </div>
+
+         <div className="flex gap-4 w-full">
+            <div className={`flex-1 p-3 rounded-xl border text-center transition-colors duration-300 ${zVal === 0 ? 'bg-emerald-900/50 border-emerald-500' : zVal === 1 ? 'bg-amber-900/50 border-amber-500' : 'bg-rose-900/50 border-rose-500'}`}>
+               <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Probability</span>
+               <span className={`text-lg font-bold ${zVal === 0 ? 'text-emerald-400' : zVal === 1 ? 'text-amber-400' : 'text-rose-400'}`}>
+                 {zVal === 0 ? '39.8%' : zVal === 1 ? '12.9%' : '0.01%'}
+               </span>
+            </div>
+            <div className={`flex-1 p-3 rounded-xl border text-center transition-colors duration-300 ${zVal === 0 ? 'bg-emerald-900/50 border-emerald-500' : zVal === 1 ? 'bg-amber-900/50 border-amber-500' : 'bg-rose-900/50 border-rose-500'}`}>
+               <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Loss Penalty</span>
+               <span className={`text-lg font-bold ${zVal === 0 ? 'text-emerald-400' : zVal === 1 ? 'text-amber-400' : 'text-rose-400'}`}>
+                 {zVal === 0 ? '0.92' : zVal === 1 ? '2.04' : '9.21'}
+               </span>
+            </div>
+         </div>
+
+      </div>
+
+      <div className="text-[11px] text-slate-400 text-center max-w-md mt-6">
+        There are infinite possible bell curves, but we ONLY compare against the <strong>Standard Normal Distribution</strong>. It is always perfectly centered at 0 with a standard deviation of 1. If our Spline outputs a Z value near 0, the math is happy (low loss). If it outputs a Z value like 4.0, the math heavily penalizes the network!
+      </div>
+    </div>
+  );
+};
+
+// 6. Affine vs Spline
 const AnimatedAffineLimitation = () => {
   const [isAffine, setIsAffine] = useState(true);
 
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-16">
       <div className="text-xs text-slate-400 mb-8 font-mono text-center">
-        {isAffine ? "Affine Transform: g(x) = αx + β" : "Spline Transform: Piecewise Bending"}
+        {isAffine ? "Affine Transform: y = αx + β" : "Spline Transform: Piecewise Bending"}
       </div>
 
       <div className="relative w-full max-w-sm h-48 border-l border-b border-slate-700 bg-slate-800/30 overflow-hidden">
@@ -251,7 +468,7 @@ const AnimatedAffineLimitation = () => {
   );
 };
 
-// 4. The Architecture
+// 7. Bounding Boxes
 const AnimatedArchitecture = () => {
   const [view, setView] = useState('box'); 
 
@@ -328,7 +545,7 @@ const AnimatedArchitecture = () => {
   );
 };
 
-// 5. The MLP Output
+// 8. The MLP Output
 const AnimatedMLPOutput = () => {
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
@@ -383,7 +600,7 @@ const AnimatedMLPOutput = () => {
   );
 };
 
-// 6. Constraints
+// 9. Constraints (FIXED S-CURVE SVG)
 const AnimatedConstraints = () => {
   const [showBroken, setShowBroken] = useState(false);
 
@@ -411,20 +628,22 @@ const AnimatedConstraints = () => {
             <span className="text-[10px] font-bold text-rose-400 mb-2">Negative Slope (Broken)</span>
             <div className="relative w-24 h-24 border-l-2 border-b-2 border-slate-500 mb-2 overflow-hidden">
                <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible">
-                  <path d="M 0 100 C 20 20, 50 120, 100 0" fill="none" stroke="#f43f5e" strokeWidth="3" />
+                  {/* True S-Curve that folds backwards and crosses 3 times at y=50 */}
+                  <path d="M 0 100 C 10 10, 30 10, 50 50 C 70 90, 90 90, 100 0" fill="none" stroke="#f43f5e" strokeWidth="3" />
                   <line x1="0" y1="50" x2="100" y2="50" stroke="#fff" strokeWidth="1" strokeDasharray="2" />
-                  <circle cx="16" cy="50" r="4" fill="#fff" />
-                  <circle cx="68" cy="50" r="4" fill="#fff" />
-                  <circle cx="85" cy="50" r="4" fill="#fff" />
+                  {/* Visually precise intersection points based on the cubic bezier above */}
+                  <circle cx="18" cy="50" r="4" fill="#fff" />
+                  <circle cx="50" cy="50" r="4" fill="#fff" />
+                  <circle cx="82" cy="50" r="4" fill="#fff" />
                </svg>
             </div>
-            <span className="text-[8px] text-slate-300 text-center leading-tight">Curve dips down (Creates a hump).<br/>One Y maps to MULTIPLE X's!</span>
+            <span className="text-[8px] text-slate-300 text-center leading-tight">Curve dips down (Creates an S-bend).<br/>One Y maps to MULTIPLE X's!</span>
          </div>
 
       </div>
 
       <div className="text-[11px] text-slate-400 text-center max-w-md mt-6 h-12">
-        If a slope was allowed to be negative, the curve would dip down, creating a "hump". If you draw a horizontal line, it crosses the curve multiple times! This permanently destroys mathematical invertibility because we wouldn't know which X generated our Y. <strong>Softplus strictly enforces positive slopes, guaranteeing invertibility.</strong>
+        If a slope was allowed to be negative, the curve would dip backwards, creating an S-shape. If you draw a horizontal line, it literally crosses the curve 3 times! This permanently destroys mathematical invertibility because we wouldn't know which X generated our Y. <strong>Softplus strictly enforces positive slopes, guaranteeing invertibility.</strong>
       </div>
 
       <div className="absolute bottom-4">
@@ -436,7 +655,7 @@ const AnimatedConstraints = () => {
   );
 };
 
-// 7. Constructing the Geometry
+// 10. Constructing the Geometry
 const AnimatedKnotBuilding = () => {
   const [step, setStep] = useState(0); 
 
@@ -509,7 +728,7 @@ const AnimatedKnotBuilding = () => {
   );
 };
 
-// 8. Binary Search
+// 11. Binary Search
 const AnimatedBinarySearch = () => {
   const [searchStep, setSearchStep] = useState(0);
 
@@ -574,7 +793,7 @@ const AnimatedBinarySearch = () => {
   );
 };
 
-// 9. Local Coordinates
+// 12. Local Coordinates
 const AnimatedLocalCoordinates = () => {
   const [progress, setProgress] = useState(0);
 
@@ -632,7 +851,7 @@ const AnimatedLocalCoordinates = () => {
   );
 };
 
-// 10. The Math Formula
+// 13. The Math Formula
 const AnimatedRQMath = () => {
   const [direction, setDirection] = useState('forward');
 
@@ -695,13 +914,76 @@ const AnimatedRQMath = () => {
   );
 };
 
-// 11. The Jacobian Derivative
+// 14. The Jacobian Shortcut
+const AnimatedJacobianMatrix = () => {
+  return (
+    <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
+      
+      <div className="text-xs text-slate-400 mb-4 font-mono text-center">
+        Erasing the complex neural network from the math.
+      </div>
+
+      <div className="flex flex-col items-center w-full max-w-lg">
+         
+         <div className="bg-slate-800/40 p-6 rounded-xl border border-slate-700 relative w-full flex flex-col items-center shadow-lg">
+            
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-4xl text-slate-600 font-light">[</div>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-4xl text-slate-600 font-light">]</div>
+
+            <div className="grid grid-cols-2 gap-4 w-48 relative z-10">
+               {/* Top Left: Identity */}
+               <div className="bg-blue-900/20 border border-blue-500/50 text-blue-400 p-3 rounded-lg flex flex-col items-center justify-center shadow-inner">
+                  <span className="text-[8px] font-mono mb-1 text-blue-300">∂Y₁ / ∂X₁</span>
+                  <span className="text-xl font-bold">I</span>
+                  <span className="text-[7px] mt-1 text-blue-200/70">Identity</span>
+               </div>
+               
+               {/* Top Right: ZERO (The magic trick) */}
+               <div className="bg-emerald-900/20 border-2 border-emerald-400 text-emerald-400 p-3 rounded-lg flex flex-col items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                  <span className="text-[8px] font-mono mb-1 text-emerald-300">∂Y₁ / ∂X₂</span>
+                  <span className="text-xl font-bold">0</span>
+                  <span className="text-[7px] mt-1 text-emerald-200/70">No relation!</span>
+               </div>
+
+               {/* Bottom Left: NN Derivs (Erased) */}
+               <div className="bg-slate-800 border border-slate-600 text-slate-400 p-3 rounded-lg flex flex-col items-center justify-center opacity-50">
+                  <span className="text-[8px] font-mono mb-1 text-slate-500">∂Y₂ / ∂X₁</span>
+                  <span className="text-xl font-bold">A</span>
+                  <span className="text-[7px] mt-1 text-slate-500">NN Derivs</span>
+               </div>
+
+               {/* Bottom Right: Spline Derivs (The Penalty) */}
+               <div className="bg-rose-900/20 border border-rose-500/50 text-rose-400 p-3 rounded-lg flex flex-col items-center justify-center shadow-inner">
+                  <span className="text-[8px] font-mono mb-1 text-rose-300">∂Y₂ / ∂X₂</span>
+                  <span className="text-[12px] font-bold mt-1 text-rose-400 leading-tight text-center">diag<br/>(Spline')</span>
+               </div>
+            </div>
+            
+         </div>
+
+         <div className="mt-6 bg-slate-800/80 border border-slate-600 p-4 rounded-xl shadow-md w-full max-w-sm flex items-center justify-center">
+            <span className="font-mono text-slate-300 text-xs text-center leading-relaxed">
+              <span className="text-emerald-400 font-bold">The Diagonal Rule:</span> The determinant of a triangular matrix is just the product of its diagonal.<br/><br/>
+              log |det(J)| = <span className="text-rose-400 font-bold text-sm">∑ log(Spline')</span>
+            </span>
+         </div>
+         
+      </div>
+
+      <div className="text-[11px] text-slate-400 text-center max-w-md mt-6">
+        We <strong>are</strong> calculating the Jacobian matrix! But because Half A passes through untouched, the top-right block is exactly 0. This mathematically <strong>erases</strong> the terrifying Neural Network derivatives (Block A). All we are left with is the simple 1D derivatives of the Spline curve!
+      </div>
+    </div>
+  );
+};
+
+// 15. The Jacobian Derivative (The Slopes!)
 const AnimatedJacobian = () => {
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
       
       <div className="text-xs text-slate-400 mb-4 font-mono text-center">
-        The Jacobian Determinant: g'(x)
+        The Volume Penalty: Spline'(x)
       </div>
 
       <div className="relative w-full max-w-md h-56 border-l border-b border-slate-600 bg-slate-800/30 overflow-hidden flex items-end">
@@ -724,117 +1006,70 @@ const AnimatedJacobian = () => {
       </div>
 
       <div className="text-[11px] text-slate-400 text-center mt-6 bg-slate-800/50 p-3 rounded border border-slate-700 max-w-md">
-        This exactly matches Figure 1 (Right) in the paper. The derivative represents the <strong>Jacobian Determinant</strong>—how much probability is being stretched. Outside the box, it is exactly 1 (no stretch). Inside the box, the massive jagged peaks prove how the Spline expands and compresses space to effortlessly model multi-modal distributions!
+        This exactly matches Figure 1 (Right) in the paper. The <strong>Volume Penalty</strong> is just the sum of the logs of these peaks and valleys! It quantifies exactly how much probability mass is being stretched. Outside the box, the derivative is exactly 1 (no stretch, 0 penalty).
       </div>
     </div>
   );
 };
 
-// 12. Gaussianization
-const AnimatedGaussianization = () => {
-  const [isRunning, setIsRunning] = useState(false);
-  const [points, setPoints] = useState([]);
-
-  useEffect(() => {
-    let int;
-    if (isRunning) {
-      int = setInterval(() => {
-        const rand = Math.random();
-        let startX = 0;
-        if (rand < 0.3) startX = 15 + Math.random() * 10;
-        else if (rand < 0.7) startX = 50 + Math.random() * 20;
-        else startX = 85 + Math.random() * 10;
-
-        const newPoint = { id: Date.now(), x: startX, progress: 0 };
-        setPoints(curr => [...curr, newPoint].slice(-40));
-      }, 150);
-    }
-    return () => clearInterval(int);
-  }, [isRunning]);
-
-  useEffect(() => {
-    if (!isRunning) return;
-    const animationFrame = setInterval(() => {
-      setPoints(curr => curr.map(p => {
-        if (p.progress >= 100) return p;
-        return { ...p, progress: p.progress + 2 };
-      }));
-    }, 30);
-    return () => clearInterval(animationFrame);
-  }, [isRunning]);
-
-  const mapXtoY = (x) => {
-    if (x < 30) return (x / 30) * 20; 
-    if (x < 80) return 20 + ((x - 30) / 50) * 60; 
-    return 80 + ((x - 80) / 20) * 20; 
-  };
-
+// 16. The 3-Step Flow Loss
+const AnimatedFinalLoss = () => {
   return (
-    <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-16">
-      
+    <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6 overflow-y-auto custom-scrollbar">
       <div className="text-xs text-slate-400 mb-6 font-mono text-center">
-        Gaussianization: Mapping Complex Data (x) to Latent Space (z)
+        Calculating the Final Loss in Three Easy Steps
       </div>
 
-      <div className="relative w-64 h-64 border-l border-b border-slate-600 bg-slate-800/30">
+      <div className="flex flex-col gap-4 w-full max-w-lg mt-2">
          
-         <div className="absolute -bottom-10 left-0 w-full h-8 flex items-end">
-            <svg viewBox="0 0 100 20" className="w-full h-full overflow-visible">
-               <path d="M 0 20 C 15 20, 15 5, 20 5 C 25 5, 25 20, 30 20 L 40 20 C 50 20, 55 0, 60 0 C 65 0, 70 20, 80 20 L 80 20 C 85 20, 88 10, 90 10 C 92 10, 95 20, 100 20" fill="rgba(244, 63, 94, 0.3)" stroke="#f43f5e" strokeWidth="1" />
-            </svg>
-            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] text-rose-400 font-bold whitespace-nowrap">Complex Data (θ₂)</span>
+         {/* Step 1: Blueprint Score */}
+         <div className="bg-slate-800/40 border border-slate-700 p-4 rounded-xl shadow-sm">
+            <div className="flex items-center gap-3 mb-2">
+               <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-md">1</div>
+               <span className="text-indigo-400 font-bold text-sm">The Blueprint Score</span>
+            </div>
+            <div className="bg-slate-900 border border-slate-700 px-3 py-2 rounded text-[11px] font-mono text-indigo-300">
+               score = bell_curve.log_prob(Z_final)
+            </div>
+            <div className="text-[9px] text-slate-500 mt-2 bg-slate-900/50 p-2 rounded">
+               <strong>Notice:</strong> We don't evaluate the target directly. If the network drew a bad Spline Box, Z_final will land far outside the bell curve, and this score will be terrible.
+            </div>
          </div>
 
-         <div className="absolute top-0 -left-12 w-10 h-full flex items-center">
-            <svg viewBox="0 0 20 100" className="w-full h-full overflow-visible">
-               <path d="M 0 100 C 0 80, 20 60, 20 50 C 20 40, 0 20, 0 0" fill="rgba(56, 189, 248, 0.3)" stroke="#38bdf8" strokeWidth="1" />
-            </svg>
-            <span className="absolute -left-4 top-1/2 -translate-y-1/2 -rotate-90 text-[9px] text-sky-400 font-bold whitespace-nowrap">Latent Normal (z₂)</span>
+         {/* Step 2: Volume Penalty */}
+         <div className="bg-slate-800/40 border border-slate-700 p-4 rounded-xl shadow-sm">
+            <div className="flex items-center gap-3 mb-2">
+               <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow-md">2</div>
+               <span className="text-emerald-400 font-bold text-sm">The Volume Penalty</span>
+            </div>
+            <div className="bg-slate-900 border border-slate-700 px-3 py-2 rounded text-[11px] font-mono text-emerald-300">
+               penalty = sum(spline_log_det_1 + ..._det_N)
+            </div>
+            <div className="text-[9px] text-slate-500 mt-2 bg-slate-900/50 p-2 rounded">
+               PyTorch grabs all the Log Jacobian Determinants (the peaks and valleys) generated across every single Spline layer and simply adds them up.
+            </div>
          </div>
 
-         <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible z-10">
-            <path d="M 0 100 C 10 95, 25 90, 30 80 C 40 50, 70 50, 80 20 C 85 10, 90 5, 100 0" fill="none" stroke="#d946ef" strokeWidth="2" className="drop-shadow-[0_0_5px_#d946ef]" />
-            
-            {points.map(p => {
-               const targetY = 100 - mapXtoY(p.x);
-               let cx, cy, opacity;
+         {/* Step 3: Total Loss */}
+         <div className="bg-slate-800/40 border border-slate-700 p-4 rounded-xl shadow-md border-b-2 border-b-rose-500">
+            <div className="flex items-center gap-3 mb-2">
+               <div className="w-6 h-6 rounded-full bg-rose-600 flex items-center justify-center text-white text-xs font-bold shadow-md">3</div>
+               <span className="text-rose-400 font-bold text-sm">Total Loss</span>
+            </div>
+            <div className="bg-rose-950/30 border border-rose-500/50 px-3 py-2 rounded text-[12px] font-mono text-rose-300 font-bold shadow-inner">
+               loss = -1 * (score + penalty)
+            </div>
+            <div className="text-[9px] text-slate-500 mt-2 bg-slate-900/50 p-2 rounded">
+               We flip it negative because neural networks minimize to zero. <code>loss.backward()</code> traces the math backward to update the network weights!
+            </div>
+         </div>
 
-               if (p.progress < 40) {
-                 cx = p.x;
-                 cy = 100 - (p.progress / 40) * (100 - targetY);
-                 opacity = p.progress / 40;
-               } else if (p.progress < 60) {
-                 cx = p.x;
-                 cy = targetY;
-                 opacity = 1;
-               } else {
-                 const leftProgress = (p.progress - 60) / 40;
-                 cx = p.x - (leftProgress * p.x);
-                 cy = targetY;
-                 opacity = 1 - leftProgress;
-               }
-
-               return (
-                 <circle key={p.id} cx={cx} cy={cy} r="1.5" fill="#fff" opacity={opacity} className="shadow-lg" />
-               );
-            })}
-         </svg>
-      </div>
-
-      <div className="text-[11px] text-slate-400 text-center max-w-md mt-14 h-12">
-        After millions of rounds of training, the MLP becomes an expert at drawing boxes. It bends the space so perfectly that when you feed in messy, 3-peaked SCADA data, it flows through the spline and maps flawlessly onto the Bell Curve grading rubric! We call this <strong>Gaussianizing</strong> the data.
-      </div>
-
-      <div className="absolute bottom-4">
-        <VisualButton onClick={() => { setIsRunning(!isRunning); setPoints([]); }} active={isRunning}>
-          {isRunning ? "Stop Data Flow" : "Flow Data into Latent Space"}
-        </VisualButton>
       </div>
     </div>
   );
 };
 
-// 13. Batch Processing (NEW)
+// 17. Batch Processing
 const AnimatedBatchProcessing = () => {
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
@@ -860,7 +1095,7 @@ const AnimatedBatchProcessing = () => {
                </svg>
             </div>
             <ArrowRight size={16} className="text-slate-500" />
-            <div className="bg-sky-900/50 border border-sky-500 p-2 rounded text-[10px] text-sky-200 font-bold">z = 0.5</div>
+            <div className="bg-sky-900/50 border border-sky-500 p-2 rounded text-[10px] text-sky-200 font-bold">Z = 0.5</div>
          </div>
 
          {/* Row 2 */}
@@ -879,7 +1114,7 @@ const AnimatedBatchProcessing = () => {
                </svg>
             </div>
             <ArrowRight size={16} className="text-slate-500" />
-            <div className="bg-sky-900/50 border border-sky-500 p-2 rounded text-[10px] text-sky-200 font-bold">z = -1.2</div>
+            <div className="bg-sky-900/50 border border-sky-500 p-2 rounded text-[10px] text-sky-200 font-bold">Z = -1.2</div>
          </div>
 
          {/* Row 3 */}
@@ -898,7 +1133,7 @@ const AnimatedBatchProcessing = () => {
                </svg>
             </div>
             <ArrowRight size={16} className="text-slate-500" />
-            <div className="bg-sky-900/50 border border-sky-500 p-2 rounded text-[10px] text-sky-200 font-bold">z = 2.1</div>
+            <div className="bg-sky-900/50 border border-sky-500 p-2 rounded text-[10px] text-sky-200 font-bold">Z = 2.1</div>
          </div>
 
          <div className="w-full text-center text-slate-500 text-xs mt-2">
@@ -907,13 +1142,13 @@ const AnimatedBatchProcessing = () => {
       </div>
 
       <div className="text-[11px] text-slate-400 text-center max-w-lg mt-6 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-         During training, PyTorch processes a <strong>Batch</strong> of data (e.g., 1,024 historical SCADA windows) all at once. The MLP looks at all 1,024 Current States and outputs 1,024 completely different sets of Spline parameters. It instantly draws <strong>1,024 unique Spline Boxes</strong> in parallel so every data point is bent exactly the way it needs to be!
+         During training, PyTorch processes a <strong>Batch</strong> of data (e.g., 1,024 historical SCADA windows) all at once. The MLP looks at all 1,024 Current States and outputs 1,024 completely different sets of Spline parameters. It instantly draws <strong>1,024 unique Spline Boxes</strong> in parallel!
       </div>
     </div>
   );
 };
 
-// 14. Column Dimensions (NEW)
+// 18. Column Dimensions
 const AnimatedDimensionality = () => {
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
@@ -970,7 +1205,7 @@ const AnimatedDimensionality = () => {
   );
 };
 
-// 15. The Massive Loss Calculation (NEW)
+// 19. The Massive Loss Calculation
 const AnimatedMassiveLoss = () => {
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
@@ -1038,23 +1273,47 @@ const steps = [
   {
     id: 'exact-sequence',
     chapter: 'The Big Picture',
-    title: '1. The Exact Sequence',
+    title: '1. Coupling Layer 1: The First Half',
     icon: ListOrdered,
     Visual: AnimatedExactSequence,
-    description: "Let's put the entire sequence together. 1: Data enters. 2: The MLP looks at Half A and predicts W, H, D. 3: We instantly draw a Spline Box using those numbers. 4: We push Half B into the X-axis of the box, and it comes out the Y-axis as z₂."
+    description: "Let's put the sequence together for a SINGLE coupling layer. 1: Data enters. 2: The MLP looks at Half A and predicts W, H, D. 3: We instantly draw a Spline Box using those numbers. 4: We push Half B into the X-axis of the box, and it comes out the Y-axis as Y₂. Notice that Half A (θ₁) was never transformed!"
+  },
+  {
+    id: 'layer-swap',
+    chapter: 'The Big Picture',
+    title: '2. The Alternating Swap',
+    icon: GitMerge,
+    Visual: AnimatedLayerSwap,
+    description: "Why did we leave Half A alone? If we fed the entire vector into the MLP, the math would become strictly un-invertible! To ensure the ENTIRE vector gets transformed, we stack multiple layers and SWAP the halves in between (using torch.flip). In Layer 2, the newly transformed Y₂ becomes the brain's input, and the previously untouched θ₁ goes through the spline."
+  },
+  {
+    id: 'final-concat',
+    chapter: 'The Big Picture',
+    title: '3. The Final Assembly (Z_final)',
+    icon: Combine,
+    Visual: AnimatedFinalConcatenation,
+    description: "Since Layer 1 successfully bent Half B into Y₂, and Layer 2 successfully bent Half A into Z₂, BOTH halves of our original data have now been transformed! We literally stitch the two arrays back together side-by-side to form Z_final. This is our complete, 12-dimensional Latent Vector output."
   },
   {
     id: 'latent-paradox',
     chapter: 'The Big Picture',
-    title: '2. The Latent Space Paradox',
+    title: '4. The Latent Space Paradox',
     icon: Target,
     Visual: AnimatedLatentSpaceParadox,
-    description: "When does the Latent Space get created? Never! It's not a physical place, it's a math formula acting as a grading rubric. The z₂ value that pops out of our Spline box is immediately graded against a mathematical Bell Curve. If it's a bad fit, the Loss spikes, and backpropagation forces the MLP to draw a better box next time."
+    description: "When does the Latent Space get created? Never! It's not a physical place, it's a math formula acting as a grading rubric. The Z_final vector that pops out of our flow is immediately graded against a mathematical Bell Curve. If it's a bad fit, the Loss spikes, and backpropagation forces the MLP to draw better boxes next time."
+  },
+  {
+    id: 'standard-normal',
+    chapter: 'The Big Picture',
+    title: '5. The Standard Normal',
+    icon: Bell,
+    Visual: AnimatedStandardNormal,
+    description: "Which Bell Curve do we use? Out of infinite possibilities, we ONLY compare against the Standard Normal Distribution N(0,1). It is always perfectly centered at 0 with a width of 1. If our Spline maps a messy SCADA point perfectly near 0, the probability is high (low loss). If it maps it far away, the loss penalty explodes!"
   },
   {
     id: 'affine-vs-spline',
     chapter: 'Transform Types',
-    title: '3. The Limits of Affine Math',
+    title: '6. The Limits of Affine Math',
     icon: GitMerge,
     Visual: AnimatedAffineLimitation,
     description: "Traditionally, flows used Affine transformations (simply shifting and scaling the data). As the authors note, while Affine is mathematically easy to invert, it lacks the flexibility to model discontinuous or multi-modal densities. We need a function that can 'bend' to fit the actual data shape."
@@ -1062,7 +1321,7 @@ const steps = [
   {
     id: 'spline-bounds',
     chapter: 'Rational-Quadratic Splines',
-    title: '4. Bounding Boxes and Knots',
+    title: '7. Bounding Boxes and Knots',
     icon: BoxSelect,
     Visual: AnimatedArchitecture,
     description: "A major point of confusion: The Bounding Box operates on a SINGLE data column at a time! Because we 'RobustScaled' our SCADA data during preprocessing, 99.9% of our data lives between -5.0 and 5.0, making B=5 perfect. Inside this box, we define K distinct bins (panels) separated by K+1 Knots (fence posts). Outside the box, the function safely defaults to a straight line."
@@ -1070,7 +1329,7 @@ const steps = [
   {
     id: 'spline-params',
     chapter: 'The Neural Architecture',
-    title: '5. The Neural Network Outputs',
+    title: '8. The Neural Network Outputs',
     icon: Cpu,
     Visual: AnimatedMLPOutput,
     description: "Yes, 'The Brain' is a completely standard Residual MLP! But instead of outputting just 1 prediction, the final layer outputs a long array of (3K - 1) neurons for every dimension it transforms. For K=4 bins, it outputs 11 raw numbers. We cleanly slice this array into three parts: Widths, Heights, and Slopes."
@@ -1078,7 +1337,7 @@ const steps = [
   {
     id: 'spline-activations',
     chapter: 'The Neural Architecture',
-    title: '6. Enforcing Physical Constraints',
+    title: '9. Enforcing Physical Constraints',
     icon: AlertTriangle,
     Visual: AnimatedConstraints,
     description: "Neural networks output unbounded raw numbers. We must constrain them so the math doesn't break. Softmax forces the Widths and Heights to sum perfectly to 2B so the curve never leaks outside the bounding box. Crucially, Softplus ensures the slopes are strictly positive so the curve never 'dips', maintaining perfect analytic invertibility."
@@ -1086,7 +1345,7 @@ const steps = [
   {
     id: 'spline-cumsum',
     chapter: 'Constructing the Spline',
-    title: '7. Scaffolding vs. Bending',
+    title: '10. Scaffolding vs. Bending',
     icon: Activity,
     Visual: AnimatedKnotBuilding,
     description: "How does the geometry physically come together for a single variable? Step 1: Using cumulative sums (torch.cumsum) of the Widths and Heights, we plot the exact (x,y) coordinate of each Knot (like placing pushpins in a board). Step 2: The Slopes (D) dictate the tangent angle at each knot. Step 3: The Spline curve bends to connect the dots following those angles."
@@ -1094,7 +1353,7 @@ const steps = [
   {
     id: 'spline-search',
     chapter: 'Evaluating the Curve',
-    title: '8. Finding the Bin',
+    title: '11. Finding the Bin',
     icon: Search,
     Visual: AnimatedBinarySearch,
     description: "Once the grid of K knots is built, the flow needs to evaluate a specific input. During training, this input is your real SCADA data moving forward. During generation, the input is random Gaussian noise moving backward. Because the knots are strictly ordered, PyTorch uses a highly optimized Binary Search to instantly find exactly which bin the input falls into."
@@ -1102,7 +1361,7 @@ const steps = [
   {
     id: 'spline-local',
     chapter: 'Evaluating the Curve',
-    title: '9. Local Coordinates (ξ)',
+    title: '12. Local Coordinates (ξ)',
     icon: Ruler,
     Visual: AnimatedLocalCoordinates,
     description: "We don't use absolute SCADA values to calculate the math. Once we find the correct bin, we calculate ξ (xi): the fractional distance of the input across that specific bin. ξ is always exactly 0.0 at the left knot and 1.0 at the right knot."
@@ -1110,31 +1369,39 @@ const steps = [
   {
     id: 'spline-math',
     chapter: 'Evaluating the Curve',
-    title: '10. The Rational-Quadratic Formula',
+    title: '13. The Rational-Quadratic Formula',
     icon: Divide,
     Visual: AnimatedRQMath,
     description: "Inside the bin, the curve is mathematically defined as a quotient of two quadratic polynomials. Because the curve is strictly monotonic (always increasing), calculating the exact Inverse mathematically simplifies to just solving for the roots of a quadratic equation!"
   },
   {
-    id: 'spline-jacobian',
+    id: 'jacobian-shortcut',
     chapter: 'Mathematical Properties',
-    title: '11. Inducing Multi-Modality',
-    icon: Waves,
-    Visual: AnimatedJacobian,
-    description: "The derivative of the spline curve dictates the Jacobian Determinant. As shown in the paper's Figure 1, the derivative stays at 1 outside the box, but exhibits massive peaks and valleys inside the box. These peaks literally compress and expand probability mass, naturally capturing multi-modal operating regimes."
+    title: '14. The Jacobian Shortcut',
+    icon: Grid3X3,
+    Visual: AnimatedJacobianMatrix,
+    description: "What happened to the Jacobian matrix? Because we only transform Half B, the relationship between Half A's input and output is exactly 1 (Identity), and the relationship between Half B's input and Half A's output is 0. This mathematically 'erases' the complex Neural Network derivatives, leaving only the Spline derivatives!"
   },
   {
-    id: 'gaussianization',
-    chapter: 'Putting it Together',
-    title: '12. Gaussianizing the Data',
-    icon: Filter,
-    Visual: AnimatedGaussianization,
-    description: "By combining these properties, the Neural Spline acts as a funnel. It takes complex, real-world SCADA distributions and forces them to align with a perfect, easy-to-sample Standard Normal distribution in the latent space. Once trained, we can reverse the flow: sampling simple Gaussian noise to generate hyper-realistic future scenarios."
+    id: 'spline-jacobian',
+    chapter: 'Mathematical Properties',
+    title: '15. The Volume Penalty',
+    icon: Waves,
+    Visual: AnimatedJacobian,
+    description: "Because the matrix collapsed, the Jacobian Determinant is now simply the sum of the logs of the Spline's derivatives! As shown in the paper's Figure 1, these massive jagged peaks quantify exactly how much probability mass is being stretched or squished by the curve."
+  },
+  {
+    id: 'final-loss',
+    chapter: 'Mathematical Properties',
+    title: '16. The 3-Step Flow Loss',
+    icon: Calculator,
+    Visual: AnimatedFinalLoss,
+    description: "Now we combine everything. 1: Calculate the Blueprint Score using the Bell Curve formula. 2: Calculate the Volume Penalty using the sum of the Spline derivatives across all layers. 3: Combine them, multiply by -1, and backpropagate!"
   },
   {
     id: 'batch-scale',
     chapter: 'The Massive Scale',
-    title: '13. The Batch Dimension',
+    title: '17. The Batch Dimension',
     icon: Layers,
     Visual: AnimatedBatchProcessing,
     description: "Training isn't done one point at a time. The MLP looks at a batch of 1,024 SCADA windows simultaneously. It instantly draws 1,024 completely unique Spline Boxes so every single data point gets bent according to its own exact physical state."
@@ -1142,7 +1409,7 @@ const steps = [
   {
     id: 'column-scale',
     chapter: 'The Massive Scale',
-    title: '14. The Column Dimension',
+    title: '18. The Column Dimension',
     icon: Columns,
     Visual: AnimatedDimensionality,
     description: "Every dimension gets its own box too! For the 6 columns in Half B, the MLP outputs parameters for 6 distinct boxes simultaneously per data point. Column 7 gets bent by Box A, Column 8 gets bent by Box B, outputting 6 separate z-values."
@@ -1150,7 +1417,7 @@ const steps = [
   {
     id: 'loss-scale',
     chapter: 'The Massive Scale',
-    title: '15. The Grading Rubric',
+    title: '19. The Grading Rubric',
     icon: Sigma,
     Visual: AnimatedMassiveLoss,
     description: "At 1,024 samples and 6 columns, PyTorch physically draws 6,144 unique Spline Boxes per layer in a millisecond. All 6,144 resulting z-values are evaluated by the 6D Bell Curve rubric. The scores are averaged to create the Final Loss, triggering backpropagation."
@@ -1192,7 +1459,7 @@ export default function SplineIntuitionSection() {
           <div 
             key={s.id} 
             onClick={() => setCurrentStep(idx)}
-            className={`h-2 flex-1 min-w-[20px] rounded-full cursor-pointer transition-all duration-300 ${
+            className={`h-2 flex-1 min-w-[10px] rounded-full cursor-pointer transition-all duration-300 ${
               idx === currentStep ? 'bg-fuchsia-600 scale-y-125 shadow-[0_0_8px_rgba(192,38,211,0.5)]' : 
               idx < currentStep ? 'bg-fuchsia-300' : 'bg-slate-200 hover:bg-slate-300'
             }`}
