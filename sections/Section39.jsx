@@ -28,7 +28,7 @@ import {
   ArrowRightLeft,
   Combine,
   Bell,
-  Grid3X3,
+  Grid3x3,
   Calculator
 } from 'lucide-react';
 
@@ -628,10 +628,8 @@ const AnimatedConstraints = () => {
             <span className="text-[10px] font-bold text-rose-400 mb-2">Negative Slope (Broken)</span>
             <div className="relative w-24 h-24 border-l-2 border-b-2 border-slate-500 mb-2 overflow-hidden">
                <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible">
-                  {/* True S-Curve that folds backwards and crosses 3 times at y=50 */}
                   <path d="M 0 100 C 10 10, 30 10, 50 50 C 70 90, 90 90, 100 0" fill="none" stroke="#f43f5e" strokeWidth="3" />
                   <line x1="0" y1="50" x2="100" y2="50" stroke="#fff" strokeWidth="1" strokeDasharray="2" />
-                  {/* Visually precise intersection points based on the cubic bezier above */}
                   <circle cx="18" cy="50" r="4" fill="#fff" />
                   <circle cx="50" cy="50" r="4" fill="#fff" />
                   <circle cx="82" cy="50" r="4" fill="#fff" />
@@ -979,34 +977,132 @@ const AnimatedJacobianMatrix = () => {
 
 // 15. The Jacobian Derivative (The Slopes!)
 const AnimatedJacobian = () => {
+  const [view, setView] = useState('micro'); // 'peaks' or 'micro'
+  const [step, setStep] = useState(0); // 0: Forward, 1: Derivative, 2: Log Store
+
+  // Handle auto-playing the micro steps
+  useEffect(() => {
+    let int;
+    if (view === 'micro') {
+      int = setInterval(() => {
+        setStep(s => (s + 1) % 3);
+      }, 4000);
+    }
+    return () => clearInterval(int);
+  }, [view]);
+
   return (
-    <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
+    <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-16">
       
       <div className="text-xs text-slate-400 mb-4 font-mono text-center">
-        The Volume Penalty: Spline'(x)
+        {view === 'peaks' ? "Macro View: The Full Volume Penalty (det J)" : "Micro View: Calculating Rate of Change"}
       </div>
 
-      <div className="relative w-full max-w-md h-56 border-l border-b border-slate-600 bg-slate-800/30 overflow-hidden flex items-end">
-        <span className="absolute -left-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">1</span>
-        <span className="absolute -left-3 bottom-0 text-[10px] text-slate-400">0</span>
+      <div className="flex gap-4 mb-4">
+         <VisualButton onClick={() => setView('micro')} active={view === 'micro'}>
+           1. Simultaneous Calculation
+         </VisualButton>
+         <VisualButton onClick={() => setView('peaks')} active={view === 'peaks'}>
+           2. The Jagged Peaks View
+         </VisualButton>
+      </div>
 
-        <span className="absolute bottom-2 left-[20%] -translate-x-1/2 text-[10px] text-slate-400">-B</span>
-        <span className="absolute bottom-2 left-[50%] -translate-x-1/2 text-[10px] text-slate-400">0</span>
-        <span className="absolute bottom-2 left-[80%] -translate-x-1/2 text-[10px] text-slate-400">B</span>
+      {/* EXPANDED CONTAINER: Taller and wider to prevent squishing and clipping */}
+      <div className={`relative w-full max-w-3xl h-[340px] border-slate-600 bg-slate-800/30 overflow-hidden flex justify-center rounded-xl shadow-inner border mt-2 ${view === 'peaks' ? 'items-end' : 'items-center'}`}>
+        
+        {view === 'peaks' ? (
+          <div className="relative w-full h-full">
+            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 z-20">1</span>
+            <span className="absolute left-2 bottom-2 text-[10px] text-slate-400 z-20">0</span>
+            <span className="absolute bottom-2 left-[20%] -translate-x-1/2 text-[10px] text-slate-400 z-20">-B</span>
+            <span className="absolute bottom-2 left-[50%] -translate-x-1/2 text-[10px] text-slate-400 z-20">0</span>
+            <span className="absolute bottom-2 left-[80%] -translate-x-1/2 text-[10px] text-slate-400 z-20">B</span>
 
-        <div className="absolute top-1/2 w-full border-t border-dashed border-slate-500/50 z-0"></div>
-        <div className="absolute top-0 bottom-0 left-[20%] border-l border-dashed border-slate-500/50 z-0"></div>
-        <div className="absolute top-0 bottom-0 left-[80%] border-l border-dashed border-slate-500/50 z-0"></div>
+            <div className="absolute top-1/2 w-full border-t border-dashed border-slate-500/50 z-0"></div>
+            <div className="absolute top-0 bottom-0 left-[20%] border-l border-dashed border-slate-500/50 z-0"></div>
+            <div className="absolute top-0 bottom-0 left-[80%] border-l border-dashed border-slate-500/50 z-0"></div>
 
-        <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible preserveAspectRatio-none z-10">
-           <path d="M 0 100 L 0 50 L 20 50 C 25 80, 27 10, 30 50 C 33 90, 35 15, 40 60 C 45 40, 50 80, 55 45 C 60 90, 65 5, 70 70 C 75 40, 78 80, 80 50 L 100 50 L 100 100 Z" fill="rgba(56, 189, 248, 0.2)" />
-           <path d="M 0 50 L 20 50 C 25 80, 27 10, 30 50 C 33 90, 35 15, 40 60 C 45 40, 50 80, 55 45 C 60 90, 65 5, 70 70 C 75 40, 78 80, 80 50 L 100 50" fill="none" stroke="#38bdf8" strokeWidth="1.5" className="drop-shadow-[0_0_4px_#38bdf8]" />
-        </svg>
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible preserveAspectRatio-none z-10 animate-in fade-in duration-500">
+               <path d="M 0 100 L 0 50 L 20 50 C 25 80, 27 10, 30 50 C 33 90, 35 15, 40 60 C 45 40, 50 80, 55 45 C 60 90, 65 5, 70 70 C 75 40, 78 80, 80 50 L 100 50 L 100 100 Z" fill="rgba(56, 189, 248, 0.2)" />
+               <path d="M 0 50 L 20 50 C 25 80, 27 10, 30 50 C 33 90, 35 15, 40 60 C 45 40, 50 80, 55 45 C 60 90, 65 5, 70 70 C 75 40, 78 80, 80 50 L 100 50" fill="none" stroke="#38bdf8" strokeWidth="1.5" className="drop-shadow-[0_0_4px_#38bdf8]" />
+            </svg>
+          </div>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-between p-4 gap-4 h-full">
+             
+             {/* Left Side: Micro View - Single Bin Zoom */}
+             <div className="relative w-1/2 h-full flex items-center justify-center p-2 border-r border-slate-700/50">
+               {/* FIXED VIEWBOX: Expanded to prevent labels from getting clipped off the edge */}
+               <svg viewBox="-20 -20 140 160" className="w-full h-full z-10 overflow-visible">
+                  {/* Bin Background */}
+                  <rect x="20" y="20" width="60" height="60" fill="rgba(15, 23, 42, 0.5)" stroke="#475569" strokeDasharray="2" />
+                  
+                  {/* Curve */}
+                  <path d="M 20 80 C 60 80, 40 20, 80 20" fill="none" stroke="#f472b6" strokeWidth="3" />
+                  
+                  {/* Step 0: Forward Pass */}
+                  <g className={`transition-opacity duration-500 ${step >= 0 ? 'opacity-100' : 'opacity-0'}`}>
+                     {/* Data point X entering */}
+                     <line x1="50" y1="110" x2="50" y2="50" stroke="#38bdf8" strokeWidth="2" strokeDasharray="3" className="animate-pulse" />
+                     <circle cx="50" cy="110" r="4" fill="#38bdf8" />
+                     <text x="35" y="125" fill="#38bdf8" fontSize="9" fontWeight="bold">Input (X)</text>
+                     
+                     {/* Point on curve */}
+                     <circle cx="50" cy="50" r="4" fill="#fff" className="shadow-[0_0_8px_#fff]" />
+                     
+                     {/* Data point Y exiting */}
+                     <line x1="50" y1="50" x2="-10" y2="50" stroke="#f472b6" strokeWidth="2" strokeDasharray="3" className="animate-pulse" />
+                     <circle cx="-10" cy="50" r="4" fill="#f472b6" />
+                     <text x="-32" y="47" fill="#f472b6" fontSize="9" fontWeight="bold">Out (Y)</text>
+                  </g>
+
+                  {/* Step 1: Exact Derivative Tangent */}
+                  <g className={`transition-opacity duration-500 ${step >= 1 ? 'opacity-100' : 'opacity-0'}`}>
+                     <line x1="30" y1="90" x2="70" y2="10" stroke="#10b981" strokeWidth="2.5" />
+                     <text x="65" y="5" fill="#10b981" fontSize="8" fontWeight="bold">Slope = 2.0</text>
+                  </g>
+               </svg>
+             </div>
+
+             {/* Right Side: Math Legend and Equations */}
+             <div className="w-1/2 h-full flex flex-col gap-2 justify-center px-4 py-2 overflow-y-auto">
+                
+                {/* Math Legend */}
+                <div className="bg-slate-950 border border-slate-700 p-2.5 rounded-lg text-[10px] text-slate-400 mb-1">
+                  <strong className="text-white border-b border-slate-700 block mb-1.5 pb-1">Math Legend:</strong>
+                  <span className="text-amber-400">ξ (xi)</span> = X's local % position inside this bin (0.0 to 1.0)<br/>
+                  <span className="text-blue-400">α (alpha)</span> = Top quadratic polynomial shape<br/>
+                  <span className="text-blue-400">β (beta)</span> = Bottom quadratic polynomial shape
+                </div>
+
+                <div className={`p-3 bg-slate-900 border transition-all duration-500 rounded-lg shadow-md ${step >= 0 ? 'border-sky-500/50 text-sky-300' : 'border-slate-700 text-slate-500 opacity-50'}`}>
+                   <span className="text-xs font-bold text-white block mb-1">1. Find Point (Y)</span>
+                   <span className="text-sm font-mono font-bold tracking-wider">y = α(ξ) / β(ξ)</span>
+                   <p className="text-[10px] mt-1.5 leading-tight text-slate-400">Calculate Y directly from X using the two curve polynomials.</p>
+                </div>
+
+                <div className={`p-3 bg-slate-900 border transition-all duration-500 rounded-lg shadow-md ${step >= 1 ? 'border-emerald-500/50 text-emerald-300' : 'border-slate-700 text-slate-500 opacity-50'}`}>
+                   <span className="text-xs font-bold text-white block mb-1">2. Find True Slope (Y')</span>
+                   <span className="text-sm font-mono font-bold tracking-wider">y' = (α'β - αβ') / β²</span>
+                   <p className="text-[10px] mt-1.5 leading-tight text-slate-400">Calculus "Quotient Rule". Gets exact slope at X's position.</p>
+                </div>
+
+                <div className={`p-3 bg-slate-900 border transition-all duration-500 rounded-lg shadow-md ${step >= 2 ? 'border-rose-400 bg-rose-950/40 text-rose-200 shadow-[0_0_15px_rgba(244,63,94,0.3)]' : 'border-slate-700 text-slate-500 opacity-50'}`}>
+                   <span className="text-xs font-bold text-white block mb-1">3. Apply Volume Penalty</span>
+                   <span className="text-sm font-mono font-bold tracking-wider">Store log(y')</span>
+                   <p className="text-[10px] mt-1.5 leading-tight text-slate-400">Log the slope and add it to our array for the final loss.</p>
+                </div>
+
+             </div>
+          </div>
+        )}
 
       </div>
 
-      <div className="text-[11px] text-slate-400 text-center mt-6 bg-slate-800/50 p-3 rounded border border-slate-700 max-w-md">
-        This exactly matches Figure 1 (Right) in the paper. The <strong>Volume Penalty</strong> is just the sum of the logs of these peaks and valleys! It quantifies exactly how much probability mass is being stretched. Outside the box, the derivative is exactly 1 (no stretch, 0 penalty).
+      <div className="text-[11px] text-slate-400 text-center mt-6 h-12 max-w-2xl leading-relaxed">
+        {view === 'peaks' 
+          ? "This matches Figure 1 in the paper. The Volume Penalty is just the sum of the logs of these peaks and valleys! It quantifies exactly how much probability mass is being stretched."
+          : <span><strong>When do we calculate this?</strong> During the forward pass! As PyTorch passes your data point X through the Spline equation to calculate Y, it immediately runs the derivative of that exact equation (using the Calculus Quotient Rule) to get the true slope at that micro-location. We save that slope, take the log, and pass it to the final loss function.</span>}
       </div>
     </div>
   );
@@ -1046,7 +1142,7 @@ const AnimatedFinalLoss = () => {
                penalty = sum(spline_log_det_1 + ..._det_N)
             </div>
             <div className="text-[9px] text-slate-500 mt-2 bg-slate-900/50 p-2 rounded">
-               PyTorch grabs all the Log Jacobian Determinants (the peaks and valleys) generated across every single Spline layer and simply adds them up.
+               PyTorch grabs all the Log Jacobian Determinants (the true curve slopes at x) generated across every single Spline layer and simply adds them up.
             </div>
          </div>
 
@@ -1069,7 +1165,111 @@ const AnimatedFinalLoss = () => {
   );
 };
 
-// 17. Batch Processing
+// 17. Gaussianization
+const AnimatedGaussianization = () => {
+  const [isRunning, setIsRunning] = useState(false);
+  const [points, setPoints] = useState([]);
+
+  useEffect(() => {
+    let int;
+    if (isRunning) {
+      int = setInterval(() => {
+        const rand = Math.random();
+        let startX = 0;
+        if (rand < 0.3) startX = 15 + Math.random() * 10;
+        else if (rand < 0.7) startX = 50 + Math.random() * 20;
+        else startX = 85 + Math.random() * 10;
+
+        const newPoint = { id: Date.now() + Math.random(), x: startX, progress: 0 };
+        setPoints(curr => [...curr, newPoint].slice(-40));
+      }, 150);
+    }
+    return () => clearInterval(int);
+  }, [isRunning]);
+
+  useEffect(() => {
+    if (!isRunning) return;
+    const animationFrame = setInterval(() => {
+      setPoints(curr => curr.map(p => {
+        if (p.progress >= 100) return p;
+        return { ...p, progress: p.progress + 2 };
+      }));
+    }, 30);
+    return () => clearInterval(animationFrame);
+  }, [isRunning]);
+
+  const mapXtoY = (x) => {
+    if (x < 30) return (x / 30) * 20; 
+    if (x < 80) return 20 + ((x - 30) / 50) * 60; 
+    return 80 + ((x - 80) / 20) * 20; 
+  };
+
+  return (
+    <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-16">
+      
+      <div className="text-xs text-slate-400 mb-6 font-mono text-center">
+        Gaussianization: Mapping Complex Data (x) to Latent Space (z)
+      </div>
+
+      <div className="relative w-64 h-64 border-l border-b border-slate-600 bg-slate-800/30">
+         
+         <div className="absolute -bottom-10 left-0 w-full h-8 flex items-end">
+            <svg viewBox="0 0 100 20" className="w-full h-full overflow-visible">
+               <path d="M 0 20 C 15 20, 15 5, 20 5 C 25 5, 25 20, 30 20 L 40 20 C 50 20, 55 0, 60 0 C 65 0, 70 20, 80 20 L 80 20 C 85 20, 88 10, 90 10 C 92 10, 95 20, 100 20" fill="rgba(244, 63, 94, 0.3)" stroke="#f43f5e" strokeWidth="1" />
+            </svg>
+            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] text-rose-400 font-bold whitespace-nowrap">Complex Data (θ₂)</span>
+         </div>
+
+         <div className="absolute top-0 -left-12 w-10 h-full flex items-center">
+            <svg viewBox="0 0 20 100" className="w-full h-full overflow-visible">
+               <path d="M 0 100 C 0 80, 20 60, 20 50 C 20 40, 0 20, 0 0" fill="rgba(56, 189, 248, 0.3)" stroke="#38bdf8" strokeWidth="1" />
+            </svg>
+            <span className="absolute -left-4 top-1/2 -translate-y-1/2 -rotate-90 text-[9px] text-sky-400 font-bold whitespace-nowrap">Latent Normal (z₂)</span>
+         </div>
+
+         <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible z-10">
+            <path d="M 0 100 C 10 95, 25 90, 30 80 C 40 50, 70 50, 80 20 C 85 10, 90 5, 100 0" fill="none" stroke="#d946ef" strokeWidth="2" className="drop-shadow-[0_0_5px_#d946ef]" />
+            
+            {points.map(p => {
+               const targetY = 100 - mapXtoY(p.x);
+               let cx, cy, opacity;
+
+               if (p.progress < 40) {
+                 cx = p.x;
+                 cy = 100 - (p.progress / 40) * (100 - targetY);
+                 opacity = p.progress / 40;
+               } else if (p.progress < 60) {
+                 cx = p.x;
+                 cy = targetY;
+                 opacity = 1;
+               } else {
+                 const leftProgress = (p.progress - 60) / 40;
+                 cx = p.x - (leftProgress * p.x);
+                 cy = targetY;
+                 opacity = 1 - leftProgress;
+               }
+
+               return (
+                 <circle key={p.id} cx={cx} cy={cy} r="1.5" fill="#fff" opacity={opacity} className="shadow-lg" />
+               );
+            })}
+         </svg>
+      </div>
+
+      <div className="text-[11px] text-slate-400 text-center max-w-md mt-14 h-12">
+        After millions of rounds of training, the MLP becomes an expert at drawing boxes. It bends the space so perfectly that when you feed in messy, 3-peaked SCADA data, it flows through the spline and maps flawlessly onto the Bell Curve grading rubric! We call this <strong>Gaussianizing</strong> the data.
+      </div>
+
+      <div className="absolute bottom-4">
+        <VisualButton onClick={() => { setIsRunning(!isRunning); setPoints([]); }} active={isRunning}>
+          {isRunning ? "Stop Data Flow" : "Flow Data into Latent Space"}
+        </VisualButton>
+      </div>
+    </div>
+  );
+};
+
+// 18. Batch Processing
 const AnimatedBatchProcessing = () => {
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
@@ -1142,13 +1342,13 @@ const AnimatedBatchProcessing = () => {
       </div>
 
       <div className="text-[11px] text-slate-400 text-center max-w-lg mt-6 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-         During training, PyTorch processes a <strong>Batch</strong> of data (e.g., 1,024 historical SCADA windows) all at once. The MLP looks at all 1,024 Current States and outputs 1,024 completely different sets of Spline parameters. It instantly draws <strong>1,024 unique Spline Boxes</strong> in parallel!
+         During training, PyTorch processes a <strong>Batch</strong> of data (e.g., 1,024 historical SCADA windows) all at once. The MLP looks at all 1,024 Current States and outputs 1,024 completely different sets of Spline parameters. It instantly draws <strong>1,024 unique Spline Boxes</strong> in parallel so every data point is bent exactly the way it needs to be!
       </div>
     </div>
   );
 };
 
-// 18. Column Dimensions
+// 19. Column Dimensions
 const AnimatedDimensionality = () => {
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
@@ -1205,7 +1405,7 @@ const AnimatedDimensionality = () => {
   );
 };
 
-// 19. The Massive Loss Calculation
+// 20. The Massive Loss Calculation
 const AnimatedMassiveLoss = () => {
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
@@ -1378,7 +1578,7 @@ const steps = [
     id: 'jacobian-shortcut',
     chapter: 'Mathematical Properties',
     title: '14. The Jacobian Shortcut',
-    icon: Grid3X3,
+    icon: Grid3x3,
     Visual: AnimatedJacobianMatrix,
     description: "What happened to the Jacobian matrix? Because we only transform Half B, the relationship between Half A's input and output is exactly 1 (Identity), and the relationship between Half B's input and Half A's output is 0. This mathematically 'erases' the complex Neural Network derivatives, leaving only the Spline derivatives!"
   },
@@ -1388,7 +1588,7 @@ const steps = [
     title: '15. The Volume Penalty',
     icon: Waves,
     Visual: AnimatedJacobian,
-    description: "Because the matrix collapsed, the Jacobian Determinant is now simply the sum of the logs of the Spline's derivatives! As shown in the paper's Figure 1, these massive jagged peaks quantify exactly how much probability mass is being stretched or squished by the curve."
+    description: "Are these jagged peaks just the 'D' values from the neural network? NO! The NN outputs 'D' (the slopes at the edges). The math formula must be used to calculate the true slope g'(x) exactly where the point landed. This exact slope is what we take the log of to create the volume penalty!"
   },
   {
     id: 'final-loss',
@@ -1396,12 +1596,20 @@ const steps = [
     title: '16. The 3-Step Flow Loss',
     icon: Calculator,
     Visual: AnimatedFinalLoss,
-    description: "Now we combine everything. 1: Calculate the Blueprint Score using the Bell Curve formula. 2: Calculate the Volume Penalty using the sum of the Spline derivatives across all layers. 3: Combine them, multiply by -1, and backpropagate!"
+    description: "Now we combine everything. 1: Calculate the Blueprint Score using the Bell Curve formula. 2: Calculate the Volume Penalty using the sum of the TRUE Spline derivatives across all layers. 3: Combine them, multiply by -1, and backpropagate!"
+  },
+  {
+    id: 'gaussianization',
+    chapter: 'Putting it Together',
+    title: '17. Gaussianizing the Data',
+    icon: Filter,
+    Visual: AnimatedGaussianization,
+    description: "By combining these properties, the Neural Spline acts as a funnel. It takes complex, real-world SCADA distributions and forces them to align with a perfect, easy-to-sample Standard Normal distribution in the latent space. Once trained, we can reverse the flow: sampling simple Gaussian noise to generate hyper-realistic future scenarios."
   },
   {
     id: 'batch-scale',
     chapter: 'The Massive Scale',
-    title: '17. The Batch Dimension',
+    title: '18. The Batch Dimension',
     icon: Layers,
     Visual: AnimatedBatchProcessing,
     description: "Training isn't done one point at a time. The MLP looks at a batch of 1,024 SCADA windows simultaneously. It instantly draws 1,024 completely unique Spline Boxes so every single data point gets bent according to its own exact physical state."
@@ -1409,7 +1617,7 @@ const steps = [
   {
     id: 'column-scale',
     chapter: 'The Massive Scale',
-    title: '18. The Column Dimension',
+    title: '19. The Column Dimension',
     icon: Columns,
     Visual: AnimatedDimensionality,
     description: "Every dimension gets its own box too! For the 6 columns in Half B, the MLP outputs parameters for 6 distinct boxes simultaneously per data point. Column 7 gets bent by Box A, Column 8 gets bent by Box B, outputting 6 separate z-values."
@@ -1417,7 +1625,7 @@ const steps = [
   {
     id: 'loss-scale',
     chapter: 'The Massive Scale',
-    title: '19. The Grading Rubric',
+    title: '20. The Grading Rubric',
     icon: Sigma,
     Visual: AnimatedMassiveLoss,
     description: "At 1,024 samples and 6 columns, PyTorch physically draws 6,144 unique Spline Boxes per layer in a millisecond. All 6,144 resulting z-values are evaluated by the 6D Bell Curve rubric. The scores are averaged to create the Final Loss, triggering backpropagation."
