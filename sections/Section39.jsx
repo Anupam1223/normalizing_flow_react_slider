@@ -867,137 +867,247 @@ const AnimatedLocalCoordinates = () => {
   );
 };
 
-// 13. The Math Formula (COMPLETELY REBUILT: Unboxing alpha and beta)
+// 13. The Math Formula (COMPLETELY REBUILT: 4 Sub-Tabs for intuition)
 const AnimatedRQMath = () => {
-  const [view, setView] = useState('unbox'); // 'unbox', 'forward', 'inverse'
+  const [view, setView] = useState('problem'); // 'problem', 'quadratic', 'rational', 'sequence'
 
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
+      
       <div className="text-xs text-slate-400 mb-6 font-mono text-center">
-        Deconstructing the Rational-Quadratic Equation
+        Deconstructing the Spline Equation
       </div>
 
-      <div className="flex gap-3 mb-6">
-         <VisualButton onClick={() => setView('unbox')} active={view === 'unbox'}>
-           1. What are α and β?
+      {/* Tabs Menu */}
+      <div className="flex flex-wrap justify-center gap-3 mb-6 max-w-2xl">
+         <VisualButton onClick={() => setView('problem')} active={view === 'problem'}>
+           1. The Problem
          </VisualButton>
+         <VisualButton onClick={() => setView('quadratic')} active={view === 'quadratic'}>
+           2. Why not a Quadratic?
+         </VisualButton>
+         <VisualButton onClick={() => setView('rational')} active={view === 'rational'}>
+           3. The "Rational" Cheat Code
+         </VisualButton>
+         <VisualButton onClick={() => setView('sequence')} active={view === 'sequence'}>
+           4. The Code Sequence
+         </VisualButton>
+      </div>
+
+      <div className="flex flex-col items-center justify-center w-full max-w-3xl bg-slate-800/40 p-6 rounded-xl border border-slate-700 min-h-[280px]">
+         
+         {/* VIEW 1: THE PROBLEM */}
+         {view === 'problem' && (
+           <div className="flex flex-col items-center animate-in fade-in duration-300 w-full">
+              
+              <div className="relative w-64 h-32 border-l-2 border-b-2 border-slate-500 mb-4 overflow-visible">
+                 <svg viewBox="0 0 100 50" className="w-full h-full overflow-visible">
+                    {/* Knots */}
+                    <circle cx="20" cy="40" r="2" fill="#fff" />
+                    <circle cx="80" cy="10" r="2" fill="#fff" />
+                    {/* Slopes */}
+                    <line x1="10" y1="40" x2="30" y2="40" stroke="#facc15" strokeWidth="1" />
+                    <line x1="70" y1="10" x2="90" y2="10" stroke="#facc15" strokeWidth="1" />
+                    {/* Erratical connecting lines (Infinite possibilities) */}
+                    <path d="M 20 40 Q 50 10, 80 10" fill="none" stroke="#64748b" strokeWidth="1" strokeDasharray="2" className="opacity-50" />
+                    <path d="M 20 40 Q 50 60, 80 10" fill="none" stroke="#64748b" strokeWidth="1" strokeDasharray="2" className="opacity-50" />
+                    <path d="M 20 40 C 30 20, 70 30, 80 10" fill="none" stroke="#64748b" strokeWidth="1" strokeDasharray="2" className="opacity-50" />
+                 </svg>
+                 <span className="absolute bottom-2 left-6 text-[8px] text-white">Start</span>
+                 <span className="absolute top-0 right-6 text-[8px] text-white">End</span>
+              </div>
+
+              <div className="text-[11px] text-slate-300 text-center max-w-lg bg-slate-950 p-4 rounded-lg border border-slate-700 leading-relaxed shadow-inner">
+                <strong>How do you connect the dots?</strong> W and H give us the start and end dots (the fence posts). D gives us the entry and exit angles. But there are infinite ways to draw a line between them! PyTorch needs a hard, concrete math equation to evaluate exactly where the curve is.
+              </div>
+           </div>
+         )}
+
+         {/* VIEW 2: QUADRATIC FAILURE */}
+         {view === 'quadratic' && (
+           <div className="flex flex-col items-center animate-in fade-in duration-300 w-full">
+              
+              <div className="relative w-64 h-32 border-l-2 border-b-2 border-slate-500 mb-4 overflow-visible">
+                 <svg viewBox="0 0 100 50" className="w-full h-full overflow-visible">
+                    {/* Knots */}
+                    <circle cx="20" cy="20" r="2" fill="#fff" />
+                    <circle cx="80" cy="10" r="2" fill="#fff" />
+                    {/* U-Shape Curve */}
+                    <path d="M 20 20 Q 50 70, 80 10" fill="none" stroke="#f43f5e" strokeWidth="2" />
+                    {/* Horizontal Line Test Failure */}
+                    <line x1="0" y1="35" x2="100" y2="35" stroke="#fff" strokeWidth="1" strokeDasharray="2" />
+                    <circle cx="34" cy="35" r="2" fill="#fff" />
+                    <circle cx="68" cy="35" r="2" fill="#fff" />
+                 </svg>
+              </div>
+
+              <div className="text-[11px] text-slate-300 text-center max-w-lg bg-slate-950 p-4 rounded-lg border border-rose-900/50 leading-relaxed shadow-inner">
+                A standard quadratic equation (ax² + bx + c) forms a "U" shape. To connect these specific angles, it has to dip down and back up. What's the problem? <strong>It fails the Horizontal Line Test!</strong> If a curve ever dips down (negative slope), it completely breaks mathematical invertibility.
+              </div>
+           </div>
+         )}
+
+         {/* VIEW 3: THE RATIONAL CHEAT CODE */}
+         {view === 'rational' && (
+           <div className="flex flex-col items-center animate-in fade-in duration-300 w-full">
+              
+              <div className="flex items-center justify-center gap-6 w-full mb-4">
+                 
+                 <div className="flex flex-col items-center gap-1">
+                    <div className="bg-slate-900 border border-slate-600 p-3 rounded-xl flex flex-col gap-2 shadow-inner">
+                      <span className="text-[10px] text-emerald-400 font-mono font-bold text-center">Top Quadratic (α)</span>
+                      <div className="w-full border-b border-slate-500"></div>
+                      <span className="text-[10px] text-emerald-400 font-mono font-bold text-center">Bottom Quadratic (β)</span>
+                    </div>
+                 </div>
+
+                 <span className="text-xl font-bold text-slate-500">=</span>
+
+                 <div className="relative w-32 h-20 border-l-2 border-b-2 border-slate-500 overflow-visible">
+                    <svg viewBox="0 0 100 50" className="w-full h-full overflow-visible">
+                       <circle cx="20" cy="40" r="2" fill="#fff" />
+                       <circle cx="80" cy="10" r="2" fill="#fff" />
+                       {/* Perfect S-Bend */}
+                       <path d="M 20 40 C 60 40, 40 10, 80 10" fill="none" stroke="#10b981" strokeWidth="2" className="drop-shadow-[0_0_5px_#10b981]" />
+                    </svg>
+                 </div>
+
+              </div>
+
+              <div className="text-[11px] text-slate-300 text-center max-w-lg bg-slate-950 p-4 rounded-lg border border-emerald-900/50 leading-relaxed shadow-inner">
+                Mathematicians discovered a brilliant cheat code. "Rational" is just a fancy math word for a fraction. If you divide one quadratic equation (let's call it <strong>α</strong>) by a different quadratic equation (<strong>β</strong>), something magical happens: The curve becomes incredibly flexible to match our W,H,D, but is mathematically guaranteed to <strong>NEVER dip downwards!</strong>
+              </div>
+           </div>
+         )}
+
+         {/* VIEW 4: THE CODE SEQUENCE */}
+         {view === 'sequence' && (
+           <div className="flex flex-col items-center animate-in fade-in duration-300 w-full">
+              
+              <div className="grid grid-cols-3 gap-2 w-full text-center">
+                 {/* Step 1 */}
+                 <div className="bg-slate-800 p-2 rounded border border-slate-600 flex flex-col justify-center">
+                    <span className="text-[9px] text-slate-400 font-bold mb-1">1. Network Outputs</span>
+                    <span className="text-xs text-sky-400 font-mono">W, H, D</span>
+                 </div>
+                 {/* Step 2 */}
+                 <div className="bg-slate-800 p-2 rounded border border-slate-600 flex flex-col justify-center">
+                    <span className="text-[9px] text-slate-400 font-bold mb-1">2. Algebra</span>
+                    <span className="text-xs text-sky-400 font-mono">Calculate c₁, c₂...</span>
+                 </div>
+                 {/* Step 3 */}
+                 <div className="bg-slate-800 p-2 rounded border border-slate-600 flex flex-col justify-center">
+                    <span className="text-[9px] text-slate-400 font-bold mb-1">3. Curve is Locked</span>
+                    <span className="text-xs text-emerald-400 font-mono">α(ξ) / β(ξ)</span>
+                 </div>
+                 {/* Step 4 */}
+                 <div className="bg-slate-800 p-2 rounded border border-slate-600 flex flex-col justify-center">
+                    <span className="text-[9px] text-slate-400 font-bold mb-1">4. Data Arrives</span>
+                    <span className="text-xs text-fuchsia-400 font-mono">ξ (Input %)</span>
+                 </div>
+                 {/* Step 5 */}
+                 <div className="bg-slate-800 p-2 rounded border border-slate-600 flex flex-col justify-center">
+                    <span className="text-[9px] text-slate-400 font-bold mb-1">5. Evaluate</span>
+                    <span className="text-xs text-fuchsia-400 font-mono">Top / Bottom</span>
+                 </div>
+                 {/* Step 6 */}
+                 <div className="bg-slate-800 p-2 rounded border border-slate-600 flex flex-col justify-center">
+                    <span className="text-[9px] text-slate-400 font-bold mb-1">6. Output</span>
+                    <span className="text-xs text-emerald-400 font-mono">Y (Gaussian)</span>
+                 </div>
+              </div>
+
+              <div className="mt-4 text-[11px] text-slate-300 text-center max-w-lg bg-slate-950 p-4 rounded-lg border border-slate-700 leading-relaxed shadow-inner">
+                α and β are not two different shapes on the graph. They are just the numerator and the denominator of a single mathematical fraction. The network outputs W,H,D → PyTorch calculates the exact polynomials → ξ arrives → PyTorch divides them to get Y.
+              </div>
+           </div>
+         )}
+
+      </div>
+    </div>
+  );
+};
+// 14. The Coefficient Algebra (NEW)
+const AnimatedCoefficients = () => {
+  const [view, setView] = useState('forward'); // 'forward' or 'inverse'
+
+  return (
+    <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
+      <div className="text-xs text-slate-400 mb-4 font-mono text-center">
+        Calculating the Exact Polynomial Coefficients
+      </div>
+
+      <div className="flex gap-4 mb-4">
          <VisualButton onClick={() => setView('forward')} active={view === 'forward'}>
-           2. Forward (X → Y)
+           1. Forward (Calculating c)
          </VisualButton>
          <VisualButton onClick={() => setView('inverse')} active={view === 'inverse'}>
-           3. Inverse (Y → X)
+           2. Inverse (The Quadratic Formula)
          </VisualButton>
       </div>
 
-      <div className="flex flex-col items-center justify-center w-full max-w-2xl bg-slate-800/40 p-6 rounded-xl border border-slate-700 min-h-[240px]">
-         
-         {/* VIEW 1: UNBOXING */}
-         {view === 'unbox' && (
-           <div className="flex flex-col items-center animate-in fade-in duration-300 w-full">
-              <div className="flex items-center justify-center gap-6 w-full">
-                 
-                 {/* W, H, D Inputs */}
-                 <div className="flex flex-col gap-2">
-                    <div className="bg-purple-900/50 border border-purple-500 text-purple-300 px-3 py-1.5 rounded text-xs font-bold text-center shadow-md">Width (W)</div>
-                    <div className="bg-fuchsia-900/50 border border-fuchsia-500 text-fuchsia-300 px-3 py-1.5 rounded text-xs font-bold text-center shadow-md">Height (H)</div>
-                    <div className="bg-teal-900/50 border border-teal-500 text-teal-300 px-3 py-1.5 rounded text-xs font-bold text-center shadow-md">Slopes (D)</div>
-                 </div>
-
-                 <ArrowRight size={24} className="text-slate-500" />
-
-                 {/* The Polynomial Engine */}
-                 <div className="bg-slate-800 border-2 border-slate-500 p-4 rounded-xl flex flex-col items-center shadow-lg relative">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest absolute -top-3 bg-slate-900 px-2">Polynomial Engine</span>
-                    
-                    <div className="text-sky-300 font-mono text-sm font-bold bg-slate-900 px-4 py-2 rounded border border-slate-700 mb-2 w-full text-center">
-                       α(ξ) = c₁ξ² + c₂ξ + c₃
-                    </div>
-                    <div className="w-full border-b-2 border-slate-600 border-dashed my-1"></div>
-                    <div className="text-sky-300 font-mono text-sm font-bold bg-slate-900 px-4 py-2 rounded border border-slate-700 mt-2 w-full text-center">
-                       β(ξ) = c₄ξ² + c₅ξ + c₆
-                    </div>
-                 </div>
-
-              </div>
-
-              <div className="mt-6 text-[11px] text-slate-300 text-center max-w-md bg-slate-950 p-4 rounded-lg border border-slate-700 leading-relaxed shadow-inner">
-                W, H, and D only define the <strong>edges</strong> (fence posts) of the bin. To connect them smoothly, the math creates two quadratic equations (parabolas) named <strong>α</strong> and <strong>β</strong>. The coefficients (c1, c2...) are calculated entirely using W, H, and D!
-              </div>
-           </div>
-         )}
-
-         {/* VIEW 2: FORWARD */}
+      <div className="flex flex-col items-center justify-center w-full max-w-3xl bg-slate-800/40 p-4 rounded-xl border border-slate-700 min-h-[300px] overflow-y-auto">
          {view === 'forward' && (
-           <div className="flex flex-col items-center animate-in fade-in duration-300 w-full">
-              
-              <div className="flex items-center justify-center gap-8 w-full mt-4">
-                 <div className="flex flex-col items-center">
-                    <span className="text-[10px] text-sky-400 font-bold mb-2">Input (Local % X)</span>
-                    <div className="bg-sky-900/40 border-2 border-sky-500 text-sky-300 font-mono text-2xl font-bold p-4 rounded-xl shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-                       ξ
+            <div className="flex flex-col w-full gap-4 animate-in fade-in duration-300">
+                <div className="flex gap-2 justify-center">
+                    <span className="bg-slate-800 px-3 py-1 rounded text-[10px] font-mono text-slate-300">Inputs: W, H, D₀, D₁</span>
+                    <ArrowRight size={14} className="text-slate-500 self-center"/>
+                    <span className="bg-indigo-900/50 border border-indigo-500 text-indigo-300 px-3 py-1 rounded text-[10px] font-mono font-bold shadow-md">Helper: S = H / W</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                    <div className="bg-slate-900 border border-emerald-500/30 p-3 rounded-lg flex flex-col gap-1 shadow-inner">
+                        <span className="text-[10px] text-emerald-400 font-bold mb-1 border-b border-emerald-900/50 pb-1">Bottom Polynomial (β)</span>
+                        <span className="text-[9px] font-mono text-slate-300">c₄ = -(D₁ + D₀ - 2S)</span>
+                        <span className="text-[9px] font-mono text-slate-300">c₅ = (D₁ + D₀ - 2S)</span>
+                        <span className="text-[9px] font-mono text-slate-300">c₆ = S</span>
+                        <span className="text-[10px] font-mono text-emerald-300 mt-2 font-bold">β(ξ) = c₄ξ² + c₅ξ + c₆</span>
                     </div>
-                 </div>
-
-                 <ArrowRight size={24} className="text-slate-500" />
-
-                 <div className="flex flex-col items-center relative">
-                    <div className="bg-slate-800 border-2 border-emerald-500 p-4 rounded-xl flex flex-col items-center shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-                       <span className="text-white font-mono text-xl font-bold tracking-widest">Y = α(ξ) / β(ξ)</span>
+                    <div className="bg-slate-900 border border-sky-500/30 p-3 rounded-lg flex flex-col gap-1 shadow-inner">
+                        <span className="text-[10px] text-sky-400 font-bold mb-1 border-b border-sky-900/50 pb-1">Top Polynomial (α)</span>
+                        <span className="text-[9px] font-mono text-slate-300">c₁ = H * (S - D₀)</span>
+                        <span className="text-[9px] font-mono text-slate-300">c₂ = H * D₀</span>
+                        <span className="text-[9px] font-mono text-slate-300">c₃ = 0</span>
+                        <span className="text-[10px] font-mono text-sky-300 mt-2 font-bold">α(ξ) = c₁ξ² + c₂ξ + c₃</span>
                     </div>
-                    <span className="absolute -bottom-6 text-[10px] text-emerald-400 font-bold">The Continuous Spline Curve</span>
-                 </div>
+                </div>
 
-                 <ArrowRight size={24} className="text-slate-500" />
-
-                 <div className="flex flex-col items-center">
-                    <span className="text-[10px] text-fuchsia-400 font-bold mb-2">Output (Gaussian)</span>
-                    <div className="bg-fuchsia-900/40 border-2 border-fuchsia-500 text-fuchsia-300 font-mono text-2xl font-bold p-4 rounded-xl shadow-[0_0_15px_rgba(217,70,239,0.2)]">
-                       Y
-                    </div>
-                 </div>
-              </div>
-
-              <div className="mt-10 text-[11px] text-slate-300 text-center max-w-md bg-slate-950 p-4 rounded-lg border border-slate-700 leading-relaxed shadow-inner">
-                During Training, we know the input X (which we turned into local ξ). We plug ξ into the top polynomial and the bottom polynomial, divide them, and instantly find out exactly where the data point lands on the <strong>Y-axis (The Gaussian representation)</strong>!
-              </div>
-           </div>
+                <div className="mt-2 bg-fuchsia-950/40 border border-fuchsia-500 p-3 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(217,70,239,0.2)]">
+                    <span className="font-mono text-sm text-fuchsia-300 font-bold">Y = (c₁ξ² + c₂ξ + c₃) / (c₄ξ² + c₅ξ + c₆)</span>
+                </div>
+            </div>
          )}
 
-         {/* VIEW 3: INVERSE */}
          {view === 'inverse' && (
-           <div className="flex flex-col items-center animate-in fade-in duration-300 w-full">
-              
-              <div className="flex flex-col items-center gap-4 w-full">
-                 
-                 {/* Step 1 */}
-                 <div className="flex items-center gap-4 text-slate-400 font-mono text-xs">
-                    <span className="bg-slate-800 px-3 py-1.5 rounded border border-slate-600 text-white">Y = α(ξ) / β(ξ)</span>
-                    <span className="text-slate-500 text-[10px] italic">Multiply denominator to left side</span>
-                 </div>
-
-                 <ArrowDown size={14} className="text-slate-500" />
-
-                 {/* Step 2 */}
-                 <div className="flex items-center gap-4 text-slate-400 font-mono text-xs">
-                    <span className="bg-slate-800 px-3 py-1.5 rounded border border-slate-600 text-white">Y * β(ξ) = α(ξ)</span>
-                    <span className="text-slate-500 text-[10px] italic">Group the ξ terms together</span>
-                 </div>
-
-                 <ArrowDown size={14} className="text-slate-500" />
-
-                 {/* Step 3: The magic trick */}
-                 <div className="bg-amber-900/40 border-2 border-amber-500 p-4 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.25)] flex flex-col items-center">
-                    <span className="text-amber-300 font-mono text-xl font-bold tracking-widest">aξ² + bξ + c = 0</span>
-                    <span className="text-[10px] text-amber-400/80 mt-2 font-bold uppercase">The Standard Quadratic Equation</span>
-                 </div>
-              </div>
-
-              <div className="mt-6 text-[11px] text-slate-300 text-center max-w-lg bg-slate-950 p-4 rounded-lg border border-slate-700 leading-relaxed shadow-inner">
-                <strong>Why is this a stroke of genius?</strong> During Generation, we start with Gaussian Noise (Y) and need to find SCADA Data (ξ). Because it's a Rational-Quadratic, basic algebra rearranges the formula into a standard quadratic equation. This means PyTorch doesn't have to guess—it just uses the high-school quadratic formula to calculate the exact SCADA data instantly!
-              </div>
-           </div>
+            <div className="flex flex-col w-full items-center gap-3 animate-in fade-in duration-300 text-slate-300">
+                <div className="text-[10px] bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg w-full max-w-lg text-center font-mono">
+                    <span className="text-slate-500 mr-2">1. Multiply:</span>
+                    Y · (c₄ξ² + c₅ξ + c₆) = c₁ξ² + c₂ξ + c₃
+                </div>
+                <ArrowDown size={12} className="text-slate-600" />
+                <div className="text-[10px] bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg w-full max-w-lg text-center font-mono">
+                    <span className="text-slate-500 mr-2">2. Group ξ:</span>
+                    (Yc₄ - c₁)ξ² + (Yc₅ - c₂)ξ + (Yc₆ - c₃) = 0
+                </div>
+                <ArrowDown size={12} className="text-slate-600" />
+                <div className="flex gap-4 w-full max-w-lg justify-center">
+                    <span className="bg-amber-900/30 border border-amber-500/50 text-amber-200 px-2 py-1 rounded text-[9px] font-mono">a = (Yc₄ - c₁)</span>
+                    <span className="bg-amber-900/30 border border-amber-500/50 text-amber-200 px-2 py-1 rounded text-[9px] font-mono">b = (Yc₅ - c₂)</span>
+                    <span className="bg-amber-900/30 border border-amber-500/50 text-amber-200 px-2 py-1 rounded text-[9px] font-mono">c = (Yc₆ - c₃)</span>
+                </div>
+                <div className="mt-2 bg-amber-950/50 border-2 border-amber-500 p-3 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.25)] flex flex-col items-center">
+                    <span className="text-[9px] text-amber-400 font-bold uppercase mb-1">Standard Quadratic Formula</span>
+                    <span className="font-mono text-sm text-amber-300 font-bold">ξ = (-b ± √(b² - 4ac)) / 2a</span>
+                </div>
+            </div>
          )}
+      </div>
 
+      <div className="text-[11px] text-slate-400 text-center mt-4 max-w-2xl leading-relaxed h-16">
+        {view === 'forward'
+          ? "PyTorch calculates a helper variable S (Straight-Line Slope = H/W). Then, it uses basic arithmetic to find the exact 'c' coefficients for the Top and Bottom polynomials. There is no ML magic here—just pure math creating the curve from W, H, and D!"
+          : "During generation, we know Y and want to find ξ. By isolating ξ and grouping the terms, the Rational-Quadratic beautifully simplifies into a standard quadratic equation (aξ² + bξ + c = 0). PyTorch instantly calculates the exact input data using the high-school quadratic formula!"
+        }
       </div>
     </div>
   );
@@ -1666,9 +1776,17 @@ const steps = [
     description: "Inside the bin, the curve is mathematically defined as a quotient of two quadratic polynomials. Because the curve is strictly monotonic (always increasing), calculating the exact Inverse mathematically simplifies to just solving for the roots of a quadratic equation!"
   },
   {
+    id: 'spline-algebra',
+    chapter: 'Evaluating the Curve',
+    title: '14. The Coefficient Algebra',
+    icon: Calculator,
+    Visual: AnimatedCoefficients,
+    description: "How exactly do W, H, and D become the polynomials? First, PyTorch calculates the straight-line slope S = H/W. Then, it uses simple arithmetic to find the exact coefficients (c₁ to c₆) for the Top and Bottom polynomials. During generation, these coefficients perfectly rearrange into the standard high-school Quadratic Formula to instantly find the original data!"
+  },
+  {
     id: 'jacobian-shortcut',
     chapter: 'Mathematical Properties',
-    title: '14. The Jacobian Shortcut',
+    title: '15. The Jacobian Shortcut',
     icon: Grid3x3,
     Visual: AnimatedJacobianMatrix,
     description: "What happened to the Jacobian matrix? Because we only transform Half B, the relationship between Half A's input and output is exactly 1 (Identity), and the relationship between Half B's input and Half A's output is 0. This mathematically 'erases' the complex Neural Network derivatives, leaving only the Spline derivatives!"
@@ -1676,7 +1794,7 @@ const steps = [
   {
     id: 'spline-jacobian',
     chapter: 'Mathematical Properties',
-    title: '15. The Volume Penalty',
+    title: '16. The Volume Penalty',
     icon: Waves,
     Visual: AnimatedJacobian,
     description: "Are these jagged peaks just the 'D' values from the neural network? NO! The NN outputs 'D' (the slopes at the edges). The math formula must be used to calculate the true slope g'(x) exactly where the point landed. This exact slope is what we take the log of to create the volume penalty!"
@@ -1684,7 +1802,7 @@ const steps = [
   {
     id: 'final-loss',
     chapter: 'Mathematical Properties',
-    title: '16. The 3-Step Flow Loss',
+    title: '17. The 3-Step Flow Loss',
     icon: Calculator,
     Visual: AnimatedFinalLoss,
     description: "Now we combine everything. 1: Calculate the Blueprint Score using the Bell Curve formula. 2: Calculate the Volume Penalty using the sum of the TRUE Spline derivatives across all layers. 3: Combine them, multiply by -1, and backpropagate!"
@@ -1692,7 +1810,7 @@ const steps = [
   {
     id: 'gaussianization',
     chapter: 'Putting it Together',
-    title: '17. Gaussianizing the Data',
+    title: '18. Gaussianizing the Data',
     icon: Filter,
     Visual: AnimatedGaussianization,
     description: "By combining these properties, the Neural Spline acts as a funnel. It takes complex, real-world SCADA distributions and forces them to align with a perfect, easy-to-sample Standard Normal distribution in the latent space. Once trained, we can reverse the flow: sampling simple Gaussian noise to generate hyper-realistic future scenarios."
@@ -1700,7 +1818,7 @@ const steps = [
   {
     id: 'batch-scale',
     chapter: 'The Massive Scale',
-    title: '18. The Batch Dimension',
+    title: '19. The Batch Dimension',
     icon: Layers,
     Visual: AnimatedBatchProcessing,
     description: "Training isn't done one point at a time. The MLP looks at a batch of 1,024 SCADA windows simultaneously. It instantly draws 1,024 completely unique Spline Boxes so every single data point gets bent according to its own exact physical state."
@@ -1708,7 +1826,7 @@ const steps = [
   {
     id: 'column-scale',
     chapter: 'The Massive Scale',
-    title: '19. The Column Dimension',
+    title: '20. The Column Dimension',
     icon: Columns,
     Visual: AnimatedDimensionality,
     description: "Every dimension gets its own box too! For the 6 columns in Half B, the MLP outputs parameters for 6 distinct boxes simultaneously per data point. Column 7 gets bent by Box A, Column 8 gets bent by Box B, outputting 6 separate z-values."
@@ -1716,7 +1834,7 @@ const steps = [
   {
     id: 'loss-scale',
     chapter: 'The Massive Scale',
-    title: '20. The Grading Rubric',
+    title: '21. The Grading Rubric',
     icon: Sigma,
     Visual: AnimatedMassiveLoss,
     description: "At 1,024 samples and 6 columns, PyTorch physically draws 6,144 unique Spline Boxes per layer in a millisecond. All 6,144 resulting z-values are evaluated by the 6D Bell Curve rubric. The scores are averaged to create the Final Loss, triggering backpropagation."
