@@ -793,120 +793,211 @@ const AnimatedBinarySearch = () => {
 
 // 12. Local Coordinates
 const AnimatedLocalCoordinates = () => {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    let animationFrame;
-    let time = 0;
-    const animate = () => {
-      time += 0.02;
-      const val = (Math.sin(time) + 1) / 2;
-      setProgress(val);
-      animationFrame = requestAnimationFrame(animate);
-    };
-    animate();
-    return () => cancelAnimationFrame(animationFrame);
-  }, []);
+  const binStart = 1.5;
+  const binEnd = 3.5;
+  const W_k = binEnd - binStart;
+  const [xVal, setXVal] = useState(2.5); // Range 1.5 to 3.5
+  
+  // Calculate xi (percentage)
+  const xi = (xVal - binStart) / W_k;
 
   return (
-    <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
-      <div className="text-xs text-slate-400 mb-6 font-mono text-center">
-        Step 2: Local Coordinates (ξ)
+    <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6 overflow-y-auto custom-scrollbar">
+      
+      <div className="text-xs text-slate-400 mb-2 font-mono text-center">
+        We found Bin 6! Now we need Local Coordinates (ξ)
       </div>
 
-      <div className="relative w-full max-w-md bg-slate-800/40 p-6 pt-10 rounded-xl border border-slate-700 flex flex-col items-center">
+      <div className="flex flex-col items-center w-full max-w-lg mt-2">
          
-         <div className="absolute top-3 left-4 text-[10px] text-slate-400 font-mono">Zoomed in on Bin k</div>
+         {/* New Warning Box Explaining Global vs Local */}
+         <div className="bg-amber-900/20 border border-amber-500/50 p-3 rounded-lg mb-4 text-[10px] text-amber-200/90 leading-relaxed shadow-sm">
+            <strong>Wait, didn't we already scale the data in preprocessing?</strong> Yes! RobustScaler scaled the raw sensor data (e.g. 500 psi) into the global Bounding Box (e.g. X = 2.5). However, the Spline's Rational-Quadratic formula is hardcoded to <strong>only accept inputs between 0.0 and 1.0</strong>. We must convert the global X position into a local bin percentage (ξ).
+         </div>
 
-         <div className="relative w-[80%] h-12 border-b-2 border-l-2 border-r-2 border-slate-500 mb-6">
-            <span className="absolute -bottom-5 left-0 text-[10px] text-slate-400 -translate-x-1/2">Start Knot</span>
-            <span className="absolute -bottom-5 right-0 text-[10px] text-slate-400 translate-x-1/2">End Knot</span>
+         <div className="bg-slate-800/40 p-5 rounded-xl border border-slate-700 relative w-full flex flex-col shadow-lg">
             
-            <div className="absolute top-1/2 w-full text-center text-[10px] text-slate-500 font-bold -translate-y-1/2">Bin Width (W_k)</div>
-
-            <div className="absolute top-0 bottom-0 border-l-[3px] border-sky-400" style={{ left: `${progress * 100}%` }}></div>
-            <div className="absolute -top-6 text-[12px] font-bold text-sky-400 bg-slate-900 px-1 rounded" style={{ left: `${progress * 100}%`, transform: 'translateX(-50%)' }}>input</div>
-         </div>
-
-         <div className="w-[80%] flex items-center gap-4 mt-4">
-            <span className="text-[12px] font-bold text-sky-400">ξ = </span>
-            <div className="flex-1 h-4 bg-slate-900 rounded-full border border-slate-700 overflow-hidden relative">
-               <div className="h-full bg-sky-500" style={{ width: `${progress * 100}%` }}></div>
+            <div className="flex justify-between items-center mb-6">
+               <span className="text-[10px] text-slate-400 font-mono flex flex-col items-start"><span>Start Knot</span><strong className="text-white text-xs">X = {binStart.toFixed(1)}</strong></span>
+               <span className="text-[10px] text-slate-400 font-mono bg-slate-900 px-2 py-1 rounded border border-slate-700 text-center">Bin Width (W₆) = {W_k.toFixed(1)}<br/><span className="text-[8px] text-fuchsia-400 font-bold">(Output by Neural Network)</span></span>
+               <span className="text-[10px] text-slate-400 font-mono flex flex-col items-end"><span>End Knot</span><strong className="text-white text-xs">X = {binEnd.toFixed(1)}</strong></span>
             </div>
-            <span className="text-[10px] font-mono text-slate-300 w-8">{progress.toFixed(2)}</span>
+
+            {/* The "YouTube" Progress Bar */}
+            <div className="relative w-full h-8 bg-slate-900 border border-slate-600 rounded-full overflow-hidden">
+               <div className="absolute top-0 left-0 h-full bg-sky-500/30 transition-all duration-100" style={{ width: `${xi * 100}%` }}></div>
+               <div className="absolute top-0 bottom-0 border-l-[3px] border-sky-400 transition-all duration-100 shadow-[0_0_10px_#38bdf8]" style={{ left: `${xi * 100}%` }}></div>
+            </div>
+
+            {/* Real X values below the bar */}
+            <div className="flex justify-between mt-2 px-1 relative h-4">
+               <span className="text-xs font-bold text-sky-400 transition-all duration-100 absolute top-0" style={{ left: `${xi * 100}%`, transform: 'translateX(-50%)' }}>X = {xVal.toFixed(2)}</span>
+            </div>
+
+            {/* Interactive Slider */}
+            <div className="mt-4 flex flex-col items-center">
+               <span className="text-[9px] text-slate-400 mb-2 uppercase tracking-wider font-bold">Slide to test different scaled outputs inside Bin 6</span>
+               <input 
+                  type="range" 
+                  min={binStart} 
+                  max={binEnd} 
+                  step="0.05" 
+                  value={xVal} 
+                  onChange={(e) => setXVal(parseFloat(e.target.value))}
+                  className="w-full accent-sky-500 cursor-pointer"
+               />
+            </div>
+
          </div>
 
-         <div className="mt-6 bg-slate-900 border border-slate-700 px-4 py-2 rounded text-[10px] text-sky-300 font-mono">
-            ξ = (input - start_knot) / W_k
+         {/* Calculation Output Box */}
+         <div className="mt-4 flex flex-col items-center bg-slate-950 border border-sky-500/50 p-4 rounded-xl shadow-[0_0_15px_rgba(56,189,248,0.1)] w-full max-w-sm">
+            <span className="font-mono text-[10px] text-slate-400 mb-1">Normalized Fraction (ξ)</span>
+            <span className="font-mono text-sm text-white mb-2">
+               ξ = (X - Start_Knot) / W₆
+            </span>
+            <span className="font-mono text-sm text-sky-300 font-bold bg-sky-900/30 px-3 py-1 rounded tracking-widest">
+               ({xVal.toFixed(2)} - {binStart.toFixed(2)}) / {W_k.toFixed(1)} = {xi.toFixed(2)}
+            </span>
          </div>
-
+         
       </div>
 
-      <div className="text-[11px] text-slate-400 text-center max-w-md mt-6">
-        We don't use absolute SCADA values to evaluate the curve. Instead, we convert the point into a fractional distance across the bin, called <strong>ξ (xi)</strong>. It is exactly 0.0 at the left edge and 1.0 at the right edge.
-      </div>
     </div>
   );
 };
 
-// 13. The Math Formula
+// 13. The Math Formula (COMPLETELY REBUILT: Unboxing alpha and beta)
 const AnimatedRQMath = () => {
-  const [direction, setDirection] = useState('forward');
+  const [view, setView] = useState('unbox'); // 'unbox', 'forward', 'inverse'
 
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-6 pb-6">
       <div className="text-xs text-slate-400 mb-6 font-mono text-center">
-        Step 3: Evaluating the Rational-Quadratic Formula
+        Deconstructing the Rational-Quadratic Equation
       </div>
 
-      <div className="flex items-center justify-center gap-6 w-full max-w-lg bg-slate-800/40 p-6 rounded-xl border border-slate-700">
+      <div className="flex gap-3 mb-6">
+         <VisualButton onClick={() => setView('unbox')} active={view === 'unbox'}>
+           1. What are α and β?
+         </VisualButton>
+         <VisualButton onClick={() => setView('forward')} active={view === 'forward'}>
+           2. Forward (X → Y)
+         </VisualButton>
+         <VisualButton onClick={() => setView('inverse')} active={view === 'inverse'}>
+           3. Inverse (Y → X)
+         </VisualButton>
+      </div>
+
+      <div className="flex flex-col items-center justify-center w-full max-w-2xl bg-slate-800/40 p-6 rounded-xl border border-slate-700 min-h-[240px]">
          
-         <div className="relative w-32 h-32 border-l-2 border-b-2 border-slate-500">
-            <span className="absolute -bottom-4 right-0 text-[10px] text-sky-400 font-bold">ξ</span>
-            <span className="absolute -left-4 top-0 text-[10px] text-fuchsia-400 font-bold">y</span>
+         {/* VIEW 1: UNBOXING */}
+         {view === 'unbox' && (
+           <div className="flex flex-col items-center animate-in fade-in duration-300 w-full">
+              <div className="flex items-center justify-center gap-6 w-full">
+                 
+                 {/* W, H, D Inputs */}
+                 <div className="flex flex-col gap-2">
+                    <div className="bg-purple-900/50 border border-purple-500 text-purple-300 px-3 py-1.5 rounded text-xs font-bold text-center shadow-md">Width (W)</div>
+                    <div className="bg-fuchsia-900/50 border border-fuchsia-500 text-fuchsia-300 px-3 py-1.5 rounded text-xs font-bold text-center shadow-md">Height (H)</div>
+                    <div className="bg-teal-900/50 border border-teal-500 text-teal-300 px-3 py-1.5 rounded text-xs font-bold text-center shadow-md">Slopes (D)</div>
+                 </div>
 
-            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible">
-               <path d="M 0 100 C 40 85, 70 40, 100 0" fill="none" stroke="#64748b" strokeWidth="3" />
-               
-               {direction === 'forward' ? (
-                 <g className="animate-in fade-in duration-500">
-                   <line x1="60" y1="100" x2="60" y2="40" stroke="#38bdf8" strokeWidth="2" strokeDasharray="3" className="animate-pulse" />
-                   <line x1="60" y1="40" x2="0" y2="40" stroke="#f472b6" strokeWidth="2" strokeDasharray="3" />
-                   <circle cx="60" cy="40" r="4" fill="#fff" className="shadow-[0_0_10px_#fff]" />
-                 </g>
-               ) : (
-                 <g className="animate-in fade-in duration-500">
-                   <line x1="0" y1="40" x2="60" y2="40" stroke="#f472b6" strokeWidth="2" strokeDasharray="3" className="animate-pulse" />
-                   <line x1="60" y1="40" x2="60" y2="100" stroke="#38bdf8" strokeWidth="2" strokeDasharray="3" />
-                   <circle cx="60" cy="40" r="4" fill="#fff" className="shadow-[0_0_10px_#fff]" />
-                 </g>
-               )}
-            </svg>
-         </div>
+                 <ArrowRight size={24} className="text-slate-500" />
 
-         <div className="flex flex-col gap-4 flex-1">
-            <div className={`p-4 rounded-xl border transition-all duration-300 ${direction === 'forward' ? 'bg-slate-900 border-sky-500 shadow-[0_0_15px_rgba(56,189,248,0.2)]' : 'bg-slate-900/50 border-slate-700 opacity-50'}`}>
-               <span className="text-[10px] text-slate-400 font-bold uppercase">Forward (Training)</span><br/>
-               <span className="text-slate-200 text-sm font-mono mt-1 block">y = α(ξ) / β(ξ)</span>
-               <span className="text-[9px] text-slate-500 mt-2 block">Directly calculates y from ξ using quadratic polynomials.</span>
-            </div>
-            
-            <div className={`p-4 rounded-xl border transition-all duration-300 ${direction === 'inverse' ? 'bg-slate-900 border-fuchsia-500 shadow-[0_0_15px_rgba(217,70,239,0.2)]' : 'bg-slate-900/50 border-slate-700 opacity-50'}`}>
-               <span className="text-[10px] text-slate-400 font-bold uppercase">Inverse (Sampling)</span><br/>
-               <span className="text-slate-200 text-sm font-mono mt-1 block">aξ² + bξ + c = 0</span>
-               <span className="text-[9px] text-slate-500 mt-2 block">Mathematically rearranges the formula to solve for the exact roots of ξ given y.</span>
-            </div>
-         </div>
+                 {/* The Polynomial Engine */}
+                 <div className="bg-slate-800 border-2 border-slate-500 p-4 rounded-xl flex flex-col items-center shadow-lg relative">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest absolute -top-3 bg-slate-900 px-2">Polynomial Engine</span>
+                    
+                    <div className="text-sky-300 font-mono text-sm font-bold bg-slate-900 px-4 py-2 rounded border border-slate-700 mb-2 w-full text-center">
+                       α(ξ) = c₁ξ² + c₂ξ + c₃
+                    </div>
+                    <div className="w-full border-b-2 border-slate-600 border-dashed my-1"></div>
+                    <div className="text-sky-300 font-mono text-sm font-bold bg-slate-900 px-4 py-2 rounded border border-slate-700 mt-2 w-full text-center">
+                       β(ξ) = c₄ξ² + c₅ξ + c₆
+                    </div>
+                 </div>
 
-      </div>
+              </div>
 
-      <div className="absolute bottom-4 flex gap-4">
-        <VisualButton onClick={() => setDirection('forward')} active={direction === 'forward'}>
-          Forward (Data → Noise)
-        </VisualButton>
-        <VisualButton onClick={() => setDirection('inverse')} active={direction === 'inverse'}>
-          Inverse (Noise → Data)
-        </VisualButton>
+              <div className="mt-6 text-[11px] text-slate-300 text-center max-w-md bg-slate-950 p-4 rounded-lg border border-slate-700 leading-relaxed shadow-inner">
+                W, H, and D only define the <strong>edges</strong> (fence posts) of the bin. To connect them smoothly, the math creates two quadratic equations (parabolas) named <strong>α</strong> and <strong>β</strong>. The coefficients (c1, c2...) are calculated entirely using W, H, and D!
+              </div>
+           </div>
+         )}
+
+         {/* VIEW 2: FORWARD */}
+         {view === 'forward' && (
+           <div className="flex flex-col items-center animate-in fade-in duration-300 w-full">
+              
+              <div className="flex items-center justify-center gap-8 w-full mt-4">
+                 <div className="flex flex-col items-center">
+                    <span className="text-[10px] text-sky-400 font-bold mb-2">Input (Local % X)</span>
+                    <div className="bg-sky-900/40 border-2 border-sky-500 text-sky-300 font-mono text-2xl font-bold p-4 rounded-xl shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+                       ξ
+                    </div>
+                 </div>
+
+                 <ArrowRight size={24} className="text-slate-500" />
+
+                 <div className="flex flex-col items-center relative">
+                    <div className="bg-slate-800 border-2 border-emerald-500 p-4 rounded-xl flex flex-col items-center shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                       <span className="text-white font-mono text-xl font-bold tracking-widest">Y = α(ξ) / β(ξ)</span>
+                    </div>
+                    <span className="absolute -bottom-6 text-[10px] text-emerald-400 font-bold">The Continuous Spline Curve</span>
+                 </div>
+
+                 <ArrowRight size={24} className="text-slate-500" />
+
+                 <div className="flex flex-col items-center">
+                    <span className="text-[10px] text-fuchsia-400 font-bold mb-2">Output (Gaussian)</span>
+                    <div className="bg-fuchsia-900/40 border-2 border-fuchsia-500 text-fuchsia-300 font-mono text-2xl font-bold p-4 rounded-xl shadow-[0_0_15px_rgba(217,70,239,0.2)]">
+                       Y
+                    </div>
+                 </div>
+              </div>
+
+              <div className="mt-10 text-[11px] text-slate-300 text-center max-w-md bg-slate-950 p-4 rounded-lg border border-slate-700 leading-relaxed shadow-inner">
+                During Training, we know the input X (which we turned into local ξ). We plug ξ into the top polynomial and the bottom polynomial, divide them, and instantly find out exactly where the data point lands on the <strong>Y-axis (The Gaussian representation)</strong>!
+              </div>
+           </div>
+         )}
+
+         {/* VIEW 3: INVERSE */}
+         {view === 'inverse' && (
+           <div className="flex flex-col items-center animate-in fade-in duration-300 w-full">
+              
+              <div className="flex flex-col items-center gap-4 w-full">
+                 
+                 {/* Step 1 */}
+                 <div className="flex items-center gap-4 text-slate-400 font-mono text-xs">
+                    <span className="bg-slate-800 px-3 py-1.5 rounded border border-slate-600 text-white">Y = α(ξ) / β(ξ)</span>
+                    <span className="text-slate-500 text-[10px] italic">Multiply denominator to left side</span>
+                 </div>
+
+                 <ArrowDown size={14} className="text-slate-500" />
+
+                 {/* Step 2 */}
+                 <div className="flex items-center gap-4 text-slate-400 font-mono text-xs">
+                    <span className="bg-slate-800 px-3 py-1.5 rounded border border-slate-600 text-white">Y * β(ξ) = α(ξ)</span>
+                    <span className="text-slate-500 text-[10px] italic">Group the ξ terms together</span>
+                 </div>
+
+                 <ArrowDown size={14} className="text-slate-500" />
+
+                 {/* Step 3: The magic trick */}
+                 <div className="bg-amber-900/40 border-2 border-amber-500 p-4 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.25)] flex flex-col items-center">
+                    <span className="text-amber-300 font-mono text-xl font-bold tracking-widest">aξ² + bξ + c = 0</span>
+                    <span className="text-[10px] text-amber-400/80 mt-2 font-bold uppercase">The Standard Quadratic Equation</span>
+                 </div>
+              </div>
+
+              <div className="mt-6 text-[11px] text-slate-300 text-center max-w-lg bg-slate-950 p-4 rounded-lg border border-slate-700 leading-relaxed shadow-inner">
+                <strong>Why is this a stroke of genius?</strong> During Generation, we start with Gaussian Noise (Y) and need to find SCADA Data (ξ). Because it's a Rational-Quadratic, basic algebra rearranges the formula into a standard quadratic equation. This means PyTorch doesn't have to guess—it just uses the high-school quadratic formula to calculate the exact SCADA data instantly!
+              </div>
+           </div>
+         )}
+
       </div>
     </div>
   );
